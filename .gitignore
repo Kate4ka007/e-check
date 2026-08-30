@@ -1,0 +1,32 @@
+node_modules/
+.pnpm-store/
+
+dist/
+build/
+.output/
+.nuxt/
+.nitro/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.*
+!.env.example
+
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Локальные данные инфраструктуры
+.docker-data/
+
+# Артефакты spike'а: реальные чеки содержат персональные данные
+spike/fixtures/private/
+test-results/
+playwright-report/
