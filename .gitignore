@@ -26,7 +26,10 @@ Thumbs.db
 # Локальные данные инфраструктуры
 .docker-data/
 
-# Артефакты spike'а: реальные чеки содержат персональные данные
+# Артефакты spike'а.
+# Чеки — персональные данные, ответы моделей содержат их полный текст.
 spike/fixtures/private/
+spike/results/
+
 test-results/
 playwright-report/

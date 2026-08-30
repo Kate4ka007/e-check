@@ -1,0 +1,29 @@
+{
+  "name": "receipt-tracker-spike",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Одноразовые скрипты M0: замер точности распознавания чеков. Не production-код.",
+  "scripts": {
+    "models": "tsx src/models.ts",
+    "annotate": "tsx src/annotate.ts",
+    "run": "tsx src/run.ts",
+    "score": "tsx src/score.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "openai": "^6.9.0",
+    "sharp": "^0.34.4",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.9",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  },
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd"
+}
