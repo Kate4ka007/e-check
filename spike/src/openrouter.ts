@@ -53,13 +53,56 @@ interface CallOptions {
 }
 
 /**
+ * Лимит вывода. У моделей с рассуждением сюда же входят токены размышления,
+ * поэтому запас большой: на чеке из 18 позиций dots потратила на рассуждение
+ * 28 тысяч символов и до самого ответа не добралась.
+ */
+const DEFAULT_MAX_TOKENS = 32_000
+
+/**
  * Классификация отказа. Определяет, пробовать ли следующую модель
  * и стоит ли вообще продолжать.
  */
+/**
+ * Модель вернула ответ, но без содержимого. Причина решает, что делать
+ * дальше, поэтому она отделена от сетевых ошибок.
+ */
+class EmptyResponseError extends Error {
+  constructor(
+    readonly finishReason: string,
+    readonly reasoningChars: number,
+  ) {
+    super('пустой ответ модели')
+    this.name = 'EmptyResponseError'
+  }
+}
+
 function classify(error: unknown): { retryable: boolean; nextModel: boolean; reason: string } {
   const status = (error as { status?: number })?.status
   const message = (error as { message?: string })?.message ?? String(error)
 
+  if (error instanceof EmptyResponseError) {
+    // Упёрлись в лимит вывода — другой режим JSON не поможет, нужна другая модель
+    if (error.finishReason === 'length') {
+      return {
+        retryable: true,
+        nextModel: true,
+        reason:
+          `не хватило токенов на ответ` +
+          (error.reasoningChars > 0 ? `, ${error.reasoningChars} символов ушло на рассуждение` : ''),
+      }
+    }
+    // Иначе модель могла споткнуться о строгую схему: пробуем режим попроще
+    return {
+      retryable: true,
+      nextModel: false,
+      reason: `пустой ответ (finish_reason=${error.finishReason})`,
+    }
+  }
+
+  if ((error as { name?: string })?.name === 'AbortError' || /aborted/i.test(message)) {
+    return { retryable: true, nextModel: true, reason: 'превышен таймаут' }
+  }
   if (status === 401 || status === 403) {
     return { retryable: false, nextModel: false, reason: `ключ отклонён (${status})` }
   }
@@ -81,7 +124,13 @@ function classify(error: unknown): { retryable: boolean; nextModel: boolean; rea
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function callWithFallback(options: CallOptions): Promise<CallResult> {
-  const { models, messages, jsonSchema, maxTokens = 8000, allowJsonModeFallback = true } = options
+  const {
+    models,
+    messages,
+    jsonSchema,
+    maxTokens = DEFAULT_MAX_TOKENS,
+    allowJsonModeFallback = true,
+  } = options
 
   if (models.length === 0) {
     throw new Error('Список моделей пуст. Заполните VISION_MODELS или TEXT_MODELS в .env')
@@ -109,24 +158,41 @@ export async function callWithFallback(options: CallOptions): Promise<CallResult
               ? { type: 'json_object' as const }
               : undefined
 
-        const completion = await client.chat.completions.create(
-          {
-            model,
-            messages,
-            max_tokens: maxTokens,
-            temperature: 0,
-            ...(responseFormat ? { response_format: responseFormat } : {}),
-          },
-          {
-            body: {
+        // Свой таймаут поверх SDK: одна из моделей отвечала 528 секунд,
+        // и таймаут клиента этого не прервал.
+        const abort = new AbortController()
+        const guard = setTimeout(() => abort.abort(), config.REQUEST_TIMEOUT_MS)
+
+        let completion: OpenAI.Chat.ChatCompletion
+        try {
+          // provider, usage и reasoning — расширения OpenRouter. Передаются в теле
+          // запроса: поле body в options заменило бы тело целиком, а не дополнило.
+          completion = await client.chat.completions.create(
+            {
+              model,
+              messages,
+              max_tokens: maxTokens,
+              temperature: 0,
+              ...(responseFormat ? { response_format: responseFormat } : {}),
               provider: { data_collection: config.DATA_COLLECTION },
               usage: { include: true },
-            },
-          } as never,
-        )
+              // Чтение чека — распознавание, а не рассуждение. Размышление
+              // съедает лимит вывода и время, не улучшая результат.
+              reasoning: { enabled: false },
+            } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
+            { signal: abort.signal },
+          )
+        } finally {
+          clearTimeout(guard)
+        }
 
-        const content = completion.choices[0]?.message?.content
-        if (!content) throw new Error('пустой ответ модели')
+        const choice = completion.choices[0]
+        const content = choice?.message?.content
+
+        if (!content) {
+          const reasoning = (choice?.message as { reasoning?: string } | undefined)?.reasoning ?? ''
+          throw new EmptyResponseError(choice?.finish_reason ?? 'unknown', reasoning.length)
+        }
 
         const usage = completion.usage as
           | (OpenAI.CompletionUsage & { cost?: number })

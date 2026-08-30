@@ -11,10 +11,8 @@
  * Для первых чеков лучше набрать руками. Режим --from-result имеет смысл
  * позже, когда набор растёт, а порядок ошибок уже понятен.
  */
-import { access, readFile, writeFile } from 'node:fs/promises'
-import { listFixtures, resultPath } from './paths.js'
-import { PROMPT_VERSION } from './prompt.js'
-import { prepareImage } from './image.js'
+import { access, writeFile } from 'node:fs/promises'
+import { listFixtures, listResults } from './paths.js'
 import type { ParsedReceipt } from './schema.js'
 
 const EMPTY_TEMPLATE: ParsedReceipt = {
@@ -75,6 +73,7 @@ async function main() {
   const overwrite = args.includes('--overwrite')
 
   const fixtures = await listFixtures()
+  const results = fromResult ? await listResults() : []
 
   if (fixtures.length === 0) {
     console.error(
@@ -97,16 +96,22 @@ async function main() {
     let body: unknown = { ...EXAMPLE_COMMENT, ...EMPTY_TEMPLATE }
 
     if (fromResult) {
-      const image = await prepareImage(fixture.imagePath)
-      const path = resultPath(fixture.id, fromResult, PROMPT_VERSION, image.sourceSha256)
-      try {
-        const stored = JSON.parse(await readFile(path, 'utf8')) as { data: ParsedReceipt | null }
-        if (stored.data) {
-          body = { ...EXAMPLE_COMMENT, ...stored.data }
-          console.log(`  ${fixture.id}  заполнено ответом модели — ПРОВЕРЬТЕ КАЖДОЕ ПОЛЕ`)
-        }
-      } catch {
-        console.log(`  ${fixture.id}  результата прогона нет, создаю пустой шаблон`)
+      // Берём самый свежий: старые прогоны сделаны другим промптом
+      const match = results
+        .filter(
+          (r) =>
+            r.fixtureId === fixture.id &&
+            r.ok &&
+            r.data !== null &&
+            (r.modelTag === fromResult || r.kind === fromResult),
+        )
+        .sort((a, b) => b.runAt.localeCompare(a.runAt))[0]
+
+      if (match) {
+        body = { ...EXAMPLE_COMMENT, ...(match.data as ParsedReceipt) }
+        console.log(`  ${fixture.id}  заполнено из ${match.modelTag} — ПРОВЕРЬТЕ КАЖДОЕ ПОЛЕ`)
+      } else {
+        console.log(`  ${fixture.id}  подходящего прогона нет, создаю пустой шаблон`)
       }
     }
 

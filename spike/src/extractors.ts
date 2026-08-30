@@ -47,6 +47,7 @@ function validate(raw: unknown): { data: ParsedReceipt | null; error?: string } 
 /** Изображение → JSON одним вызовом. */
 export async function extractVision(
   image: PreparedImage,
+  models: string[],
   hints?: ExtractionHints,
 ): Promise<ExtractionOutcome> {
   const messages: ChatCompletionMessageParam[] = [
@@ -61,7 +62,7 @@ export async function extractVision(
   ]
 
   const call = await callWithFallback({
-    models: config.VISION_MODELS,
+    models,
     messages,
     jsonSchema: RECEIPT_JSON_SCHEMA,
   })
@@ -101,10 +102,11 @@ export async function extractVision(
 /** Изображение → текст → JSON двумя вызовами. */
 export async function extractTwoStage(
   image: PreparedImage,
+  models: string[],
   hints?: ExtractionHints,
 ): Promise<ExtractionOutcome> {
   const ocrCall = await callWithFallback({
-    models: config.VISION_MODELS,
+    models,
     messages: [
       { role: 'system', content: OCR_SYSTEM_PROMPT },
       {
@@ -121,7 +123,7 @@ export async function extractTwoStage(
   const ocrText = ocrCall.content
 
   const parseCall = await callWithFallback({
-    models: config.TEXT_MODELS.length > 0 ? config.TEXT_MODELS : config.VISION_MODELS,
+    models: config.TEXT_MODELS.length > 0 ? config.TEXT_MODELS : models,
     messages: [
       { role: 'system', content: TEXT_STAGE_SYSTEM_PROMPT },
       {

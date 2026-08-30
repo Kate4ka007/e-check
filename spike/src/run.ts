@@ -1,39 +1,23 @@
 /**
  * Прогоняет чеки из fixtures/private через выбранный вариант извлечения.
  *
- *   pnpm run                        вариант vision
- *   pnpm run -- --kind two-stage    двухэтапный вариант
- *   pnpm run -- --force             игнорировать кэш
- *   pnpm run -- --only 001,002      только указанные чеки
+ *   pnpm run                                 бесплатные модели из .env
+ *   pnpm run -- --models openai/gpt-4o-mini  конкретная модель
+ *   pnpm run -- --kind two-stage             двухэтапный вариант
+ *   pnpm run -- --force                      игнорировать кэш
+ *   pnpm run -- --only 001,002               только указанные чеки
  *
- * Результаты кэшируются в results/. Повторный запуск без --force не тратит
- * запросы к провайдеру — при лимите 50 в день это существенно.
+ * Результаты кэшируются в results/. Ключ кэша включает модель, вариант,
+ * версию промпта и хеш изображения — повторный запуск не тратит запросы,
+ * а смена любой составляющей выполняет прогон заново.
  */
 import { readFile, writeFile } from 'node:fs/promises'
 import { config } from './config.js'
 import { getExtractor, type ExtractorKind } from './extractors.js'
 import { prepareImage } from './image.js'
 import { AllModelsFailedError } from './openrouter.js'
-import { listFixtures, resultPath } from './paths.js'
+import { listFixtures, modelTag, resultPath, type StoredResult } from './paths.js'
 import { PROMPT_VERSION } from './prompt.js'
-
-interface StoredResult {
-  fixtureId: string
-  kind: ExtractorKind
-  promptVersion: string
-  sourceSha256: string
-  runAt: string
-  ok: boolean
-  model: string
-  jsonMode: string
-  attempts: number
-  durationMs: number
-  costMicros: number
-  error?: string
-  data: unknown
-  raw: unknown
-  ocrText?: string
-}
 
 function parseArgs() {
   const args = process.argv.slice(2)
@@ -41,16 +25,48 @@ function parseArgs() {
     const i = args.indexOf(flag)
     return i !== -1 ? args[i + 1] : undefined
   }
+
   const kind = (get('--kind') ?? 'vision') as ExtractorKind
   if (kind !== 'vision' && kind !== 'two-stage') {
     console.error(`Неизвестный вариант: ${kind}. Допустимо: vision, two-stage`)
     process.exit(1)
   }
+
+  const modelsArg = get('--models')
+
   return {
     kind,
     force: args.includes('--force'),
+    yes: args.includes('--yes'),
     only: get('--only')?.split(',').map((s) => s.trim()),
+    models: modelsArg?.split(',').map((s) => s.trim()).filter(Boolean),
   }
+}
+
+const isFreeModel = (id: string) => id.endsWith(':free') || id === 'openrouter/free'
+
+async function confirmPaid(models: string[], receiptCount: number, yes: boolean) {
+  const paid = models.filter((m) => !isFreeModel(m))
+  if (paid.length === 0) return
+
+  console.log(`\n  Платные модели: ${paid.join(', ')}`)
+  console.log(`  Чеков в прогоне: ${receiptCount}`)
+  console.log('  Фактическая стоимость будет показана после прогона.\n')
+
+  if (yes || !process.stdin.isTTY) return
+
+  process.stdout.write('  Продолжить? [y/N] ')
+  const answer = await new Promise<string>((resolve) => {
+    process.stdin.setEncoding('utf8')
+    process.stdin.once('data', (d) => resolve(String(d).trim().toLowerCase()))
+  })
+  process.stdin.pause()
+
+  if (answer !== 'y' && answer !== 'yes') {
+    console.log('  Отменено.\n')
+    process.exit(0)
+  }
+  console.log()
 }
 
 async function readCached(path: string): Promise<StoredResult | null> {
@@ -62,10 +78,15 @@ async function readCached(path: string): Promise<StoredResult | null> {
 }
 
 async function main() {
-  const { kind, force, only } = parseArgs()
+  const { kind, force, only, models: modelsOverride, yes } = parseArgs()
 
-  if (config.VISION_MODELS.length === 0) {
-    console.error('VISION_MODELS пуст. Запустите `pnpm models`, выберите модели и впишите в .env')
+  const models = modelsOverride ?? config.VISION_MODELS
+
+  if (models.length === 0) {
+    console.error(
+      'Не заданы модели. Либо заполните VISION_MODELS в .env (`pnpm models` подскажет),\n' +
+        'либо укажите явно: pnpm run -- --models openai/gpt-4o-mini',
+    )
     process.exit(1)
   }
 
@@ -81,13 +102,17 @@ async function main() {
   }
 
   console.log(`\nВариант: ${kind}   промпт: ${PROMPT_VERSION}   чеков: ${fixtures.length}`)
-  console.log(`Модели: ${config.VISION_MODELS.join(', ')}`)
+  console.log(`Модели: ${models.join(', ')}`)
   if (kind === 'two-stage' && config.TEXT_MODELS.length > 0) {
     console.log(`Текстовые: ${config.TEXT_MODELS.join(', ')}`)
   }
-  console.log(`Обучение на данных: ${config.DATA_COLLECTION}\n`)
+  console.log(`Обучение на данных: ${config.DATA_COLLECTION}`)
+
+  await confirmPaid(models, fixtures.length, yes)
 
   const extract = getExtractor(kind)
+  const tag = modelTag(models)
+
   let processed = 0
   let cached = 0
   let failed = 0
@@ -98,7 +123,7 @@ async function main() {
     process.stdout.write(`  ${fixture.id}  `)
 
     const image = await prepareImage(fixture.imagePath)
-    const path = resultPath(fixture.id, kind, PROMPT_VERSION, image.sourceSha256)
+    const path = resultPath(fixture.id, kind, PROMPT_VERSION, models, image.sourceSha256)
 
     if (!force) {
       const existing = await readCached(path)
@@ -109,20 +134,27 @@ async function main() {
       }
     }
 
-    const sizeInfo = `${(image.sourceBytes / 1024 / 1024).toFixed(1)}МБ → ${(image.preparedBytes / 1024).toFixed(0)}КБ, ${image.width}×${image.height}`
-    process.stdout.write(`${sizeInfo}\n`)
+    console.log(
+      `${(image.sourceBytes / 1024 / 1024).toFixed(1)}МБ → ${(image.preparedBytes / 1024).toFixed(0)}КБ, ${image.width}×${image.height}`,
+    )
+
+    const base = {
+      fixtureId: fixture.id,
+      kind,
+      promptVersion: PROMPT_VERSION,
+      modelTag: tag,
+      requestedModels: models,
+      sourceSha256: image.sourceSha256,
+      runAt: new Date().toISOString(),
+    }
 
     let stored: StoredResult
 
     try {
-      const outcome = await extract(image)
+      const outcome = await extract(image, models)
 
       stored = {
-        fixtureId: fixture.id,
-        kind,
-        promptVersion: PROMPT_VERSION,
-        sourceSha256: image.sourceSha256,
-        runAt: new Date().toISOString(),
+        ...base,
         ok: outcome.ok,
         model: outcome.model,
         jsonMode: outcome.jsonMode,
@@ -139,9 +171,9 @@ async function main() {
       totalCost += outcome.costMicros
 
       if (outcome.ok) {
-        const itemCount = outcome.data?.items.length ?? 0
         console.log(
-          `      ok — ${outcome.model} [${outcome.jsonMode}], ${itemCount} позиций, ${(outcome.durationMs / 1000).toFixed(1)}с`,
+          `      ok — ${outcome.model} [${outcome.jsonMode}], ` +
+            `${outcome.data?.items.length ?? 0} позиций, ${(outcome.durationMs / 1000).toFixed(1)}с`,
         )
         processed++
       } else {
@@ -149,18 +181,14 @@ async function main() {
         failed++
       }
     } catch (error) {
-      if (error instanceof AllModelsFailedError) {
-        console.log(`      все модели отказали`)
-      } else {
-        console.log(`      ошибка: ${(error as Error).message}`)
-      }
+      console.log(
+        error instanceof AllModelsFailedError
+          ? '      все модели отказали'
+          : `      ошибка: ${(error as Error).message}`,
+      )
 
       stored = {
-        fixtureId: fixture.id,
-        kind,
-        promptVersion: PROMPT_VERSION,
-        sourceSha256: image.sourceSha256,
-        runAt: new Date().toISOString(),
+        ...base,
         ok: false,
         model: '—',
         jsonMode: '—',
@@ -178,12 +206,22 @@ async function main() {
   }
 
   console.log(`\nГотово: ${processed} успешно, ${failed} с ошибкой, ${cached} из кэша`)
+
   if (processed > 0) {
     console.log(`Среднее время: ${(totalDuration / processed / 1000).toFixed(1)}с на чек`)
-    console.log(
-      `Стоимость: ${totalCost === 0 ? '0 (бесплатные модели)' : `$${(totalCost / 1_000_000).toFixed(4)}`}`,
-    )
+    if (totalCost === 0) {
+      console.log('Стоимость: 0 (бесплатные модели)')
+    } else {
+      console.log(
+        `Стоимость: $${(totalCost / 1_000_000).toFixed(4)} за ${processed} чеков ` +
+          `= $${(totalCost / 1_000_000 / processed).toFixed(4)} за чек`,
+      )
+      console.log(
+        `В пересчёте на 100 чеков в месяц: $${((totalCost / processed / 1_000_000) * 100).toFixed(2)}`,
+      )
+    }
   }
+
   console.log(`\nДальше: pnpm score${kind === 'vision' ? '' : ` -- --kind ${kind}`}\n`)
 }
 

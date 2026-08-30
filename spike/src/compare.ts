@@ -145,6 +145,10 @@ function matchItems(expected: ParsedItem[], actual: ParsedItem[], currency: stri
   const usedActual = new Set<number>()
   const matches: ItemMatch[] = []
 
+  // Ненапечатанное количество означает одну штуку: строка без числа
+  // и строка с «1» описывают одну и ту же покупку.
+  const quantityValue = (value: string | null) => (value === null ? 1 : parseQuantity(value))
+
   for (const { ei, ai, score } of pairs) {
     if (usedExpected.has(ei) || usedActual.has(ai)) continue
     usedExpected.add(ei)
@@ -159,7 +163,7 @@ function matchItems(expected: ParsedItem[], actual: ParsedItem[], currency: stri
       nameSimilarity: score,
       nameExact: normalizeName(e.name) === normalizeName(a.name),
       priceCorrect: moneyEqual(e.totalPrice, a.totalPrice, currency),
-      quantityCorrect: parseQuantity(e.quantity) === parseQuantity(a.quantity),
+      quantityCorrect: quantityValue(e.quantity) === quantityValue(a.quantity),
       categoryCorrect: e.categorySlug === a.categorySlug,
       lineTypeCorrect: e.lineType === a.lineType,
     })

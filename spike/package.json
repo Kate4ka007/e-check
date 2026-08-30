@@ -6,8 +6,11 @@
   "description": "Одноразовые скрипты M0: замер точности распознавания чеков. Не production-код.",
   "scripts": {
     "models": "tsx src/models.ts",
+    "check": "tsx src/ping.ts",
+    "inspect": "tsx src/inspect.ts",
+    "diff": "tsx src/diff.ts",
     "annotate": "tsx src/annotate.ts",
-    "run": "tsx src/run.ts",
+    "extract": "tsx src/run.ts",
     "score": "tsx src/score.ts",
     "typecheck": "tsc --noEmit"
   },
