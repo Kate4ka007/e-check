@@ -1,0 +1,14 @@
+packages:
+  - apps/*
+  - packages/*
+
+# spike/ намеренно вне workspace: это одноразовые скрипты M0 со своим
+# набором зависимостей, и связывать их с продуктовым кодом незачем.
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - better-sqlite3
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - vue-demi

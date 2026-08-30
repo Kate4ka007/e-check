@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="640" viewBox="0 0 420 640" font-family="ui-monospace, monospace">
+  <rect width="420" height="640" fill="#fbfaf7"/>
+  <rect x="0" y="0" width="420" height="640" fill="none" stroke="#e5e0d8" stroke-width="2"/>
+
+  <text x="210" y="52" font-size="20" text-anchor="middle" fill="#2b2b2b">PRODUKTY U DOMA</text>
+  <text x="210" y="74" font-size="12" text-anchor="middle" fill="#6b6b6b">ul. Primernaya, 14</text>
+
+  <line x1="24" y1="96" x2="396" y2="96" stroke="#c9c2b6" stroke-dasharray="4 4"/>
+
+  <text x="24" y="122" font-size="13" fill="#2b2b2b">Khleb borodinskiy 400g</text>
+  <text x="396" y="122" font-size="13" text-anchor="end" fill="#2b2b2b">2,45</text>
+
+  <text x="24" y="150" font-size="13" fill="#2b2b2b">Moloko 3,2% 1l</text>
+  <text x="396" y="150" font-size="13" text-anchor="end" fill="#2b2b2b">3,80</text>
+
+  <text x="24" y="178" font-size="13" fill="#2b2b2b">Yabloki Gala</text>
+  <text x="396" y="178" font-size="13" text-anchor="end" fill="#2b2b2b">4,26</text>
+  <text x="40" y="196" font-size="11" fill="#6b6b6b">1,420 kg x 3,00</text>
+
+  <text x="24" y="224" font-size="13" fill="#2b2b2b">Kofe zernovoy 250g</text>
+  <text x="396" y="224" font-size="13" text-anchor="end" fill="#2b2b2b">18,90</text>
+
+  <text x="24" y="252" font-size="13" fill="#2b2b2b">Skidka po karte</text>
+  <text x="396" y="252" font-size="13" text-anchor="end" fill="#2b2b2b">-1,89</text>
+
+  <line x1="24" y1="276" x2="396" y2="276" stroke="#c9c2b6" stroke-dasharray="4 4"/>
+
+  <text x="24" y="304" font-size="16" fill="#2b2b2b">ITOGO</text>
+  <text x="396" y="304" font-size="16" text-anchor="end" fill="#2b2b2b">27,52</text>
+
+  <text x="24" y="336" font-size="12" fill="#6b6b6b">Karta ****4417</text>
+  <text x="24" y="356" font-size="12" fill="#6b6b6b">30.08.2026  14:12</text>
+  <text x="24" y="376" font-size="12" fill="#6b6b6b">Chek No 000184</text>
+
+  <line x1="24" y1="400" x2="396" y2="400" stroke="#c9c2b6" stroke-dasharray="4 4"/>
+  <text x="210" y="428" font-size="12" text-anchor="middle" fill="#6b6b6b">Spasibo za pokupku</text>
+
+  <text x="210" y="600" font-size="11" text-anchor="middle" fill="#a8a29a">
+    demo image for UI development
+  </text>
+</svg>

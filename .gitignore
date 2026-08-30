@@ -31,5 +31,9 @@ Thumbs.db
 spike/fixtures/private/
 spike/results/
 
+# Фикстуры интерфейса, собранные из настоящих чеков (pnpm fixture).
+# По той же причине: это персональные данные.
+apps/web/public/.local/
+
 test-results/
 playwright-report/

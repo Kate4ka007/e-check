@@ -1,0 +1,19 @@
+{
+  "name": "@receipt-tracker/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Единственное место, где определена форма данных на границе API.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

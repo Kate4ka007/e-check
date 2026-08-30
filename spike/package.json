@@ -9,6 +9,7 @@
     "check": "tsx src/ping.ts",
     "inspect": "tsx src/inspect.ts",
     "diff": "tsx src/diff.ts",
+    "fixture": "tsx src/export-fixture.ts",
     "annotate": "tsx src/annotate.ts",
     "extract": "tsx src/run.ts",
     "score": "tsx src/score.ts",
