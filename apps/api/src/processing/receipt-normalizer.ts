@@ -24,7 +24,7 @@ export interface NormalizedReceipt {
   discountTotalMinor: number | null
   totalMinor: number | null
   confidence: 'HIGH' | 'MEDIUM' | 'LOW'
-  fieldSources: Record<string, 'AI'>
+  fieldSources: Record<string, 'AI' | 'USER' | 'OCR'>
   items: Array<{
     id: string
     position: number

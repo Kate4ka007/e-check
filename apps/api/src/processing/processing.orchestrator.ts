@@ -4,6 +4,7 @@ import type { ReceiptExtractor } from '../extraction/receipt-extractor'
 import type { ReceiptProcessingJobData } from '../receipts/receipt-queue.service'
 import { StorageService } from '../storage/storage.service'
 import { ReceiptNormalizer } from './receipt-normalizer'
+import { mergeReprocessResult } from './receipt-reprocess.merge'
 
 export class ProcessingOrchestrator {
   private readonly normalizer: ReceiptNormalizer
@@ -105,29 +106,33 @@ export class ProcessingOrchestrator {
         storageKey: rawKey,
       })
 
+      const merged = mergeReprocessResult(receipt, normalized)
+
       await this.prisma.$transaction(async (tx) => {
-        await tx.receiptItem.deleteMany({ where: { receiptId: receipt.id } })
+        if (!merged.preserveItems) {
+          await tx.receiptItem.deleteMany({ where: { receiptId: receipt.id } })
+        }
 
         await tx.receipt.update({
           where: { id: receipt.id },
           data: {
-            merchantId: normalized.merchantId,
-            purchasedAt: normalized.purchasedAt,
-            purchasedTime: normalized.purchasedTime,
-            currency: normalized.currency,
-            subtotalMinor: normalized.subtotalMinor,
-            taxTotalMinor: normalized.taxTotalMinor,
-            discountTotalMinor: normalized.discountTotalMinor,
-            totalMinor: normalized.totalMinor,
-            confidence: normalized.confidence,
-            fieldSources: normalized.fieldSources,
+            merchantId: merged.merchantId,
+            purchasedAt: merged.purchasedAt,
+            purchasedTime: merged.purchasedTime,
+            currency: merged.currency,
+            subtotalMinor: merged.subtotalMinor,
+            taxTotalMinor: merged.taxTotalMinor,
+            discountTotalMinor: merged.discountTotalMinor,
+            totalMinor: merged.totalMinor,
+            confidence: merged.confidence,
+            fieldSources: merged.fieldSources,
             processingStatus: 'COMPLETED',
           },
         })
 
-        if (normalized.items.length > 0) {
+        if (!merged.preserveItems && merged.items.length > 0) {
           await tx.receiptItem.createMany({
-            data: normalized.items.map((item) => ({
+            data: merged.items.map((item) => ({
               id: item.id,
               receiptId: receipt.id,
               categoryId: item.categoryId,
@@ -151,8 +156,8 @@ export class ProcessingOrchestrator {
             finishedAt,
             durationMs: extraction.durationMs,
             costMicros: extraction.costMicros,
-            rawResultKey: normalized.rawResultKey,
-            rawResultExpiresAt: normalized.rawResultExpiresAt,
+            rawResultKey: merged.rawResultKey,
+            rawResultExpiresAt: merged.rawResultExpiresAt,
             errorCode: null,
             errorMessage: null,
           },

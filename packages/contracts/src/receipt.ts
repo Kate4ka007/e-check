@@ -137,6 +137,12 @@ export const ReceiptListItemSchema = ReceiptDetailSchema.pick({
 
 export type ReceiptListItem = z.infer<typeof ReceiptListItemSchema>
 
+export const ReceiptListResponseSchema = z.object({
+  items: z.array(ReceiptListItemSchema),
+})
+
+export type ReceiptListResponse = z.infer<typeof ReceiptListResponseSchema>
+
 export const ReceiptUploadResponseSchema = z.object({
   receiptId: z.uuid(),
   processingStatus: ProcessingStatusSchema,
@@ -162,3 +168,24 @@ export const ReceiptProcessingResponseSchema = z.object({
 })
 
 export type ReceiptProcessingResponse = z.infer<typeof ReceiptProcessingResponseSchema>
+
+export const ReceiptConfirmWarningSchema = z.object({
+  code: z.enum(['ITEMS_SUM_MISMATCH']),
+  differenceMinor: z.number().int(),
+})
+
+export type ReceiptConfirmWarning = z.infer<typeof ReceiptConfirmWarningSchema>
+
+export const ReceiptConfirmResponseSchema = z.object({
+  status: ReceiptStatusSchema,
+  warnings: z.array(ReceiptConfirmWarningSchema),
+})
+
+export type ReceiptConfirmResponse = z.infer<typeof ReceiptConfirmResponseSchema>
+
+export const ReceiptReprocessResponseSchema = z.object({
+  receiptId: z.uuid(),
+  processingStatus: ProcessingStatusSchema,
+})
+
+export type ReceiptReprocessResponse = z.infer<typeof ReceiptReprocessResponseSchema>

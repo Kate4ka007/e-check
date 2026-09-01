@@ -62,6 +62,11 @@ async function waitForProcessing(receiptId: string) {
 
     if (result.processingStatus === 'FAILED') {
       errorMessage.value = t('processing.failedHint')
+      return
+    }
+
+    if (result.processingStatus === 'COMPLETED') {
+      await navigateTo(`/receipts/${receiptId}`)
     }
   } catch {
     errorMessage.value = t('processing.timeout')
@@ -90,6 +95,8 @@ async function upload() {
 
     if (!manualEntry.value && result.processingStatus !== 'SKIPPED') {
       await waitForProcessing(result.receiptId)
+    } else {
+      await navigateTo(`/receipts/${result.receiptId}`)
     }
   } catch (error) {
     const apiError = error as ApiClientError

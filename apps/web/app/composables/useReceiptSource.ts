@@ -1,46 +1,25 @@
-import type { ReceiptDetail } from '@receipt-tracker/contracts'
-import { createDemoReceipt } from '~/fixtures/demoReceipt'
-
-export interface ReceiptSourceInfo {
-  model: string
-  promptVersion: string
-}
-
-export type SourcedReceipt = ReceiptDetail & { _source?: ReceiptSourceInfo }
+import type { ReceiptDetail, ReceiptListItem } from '@receipt-tracker/contracts'
 
 /**
- * Источник данных до появления бэкенда.
- *
- * Сначала пробуем локальную фикстуру из настоящих чеков — её собирает
- * `pnpm fixture` в spike/. Если её нет, показываем синтетический образец,
- * чтобы экран открывался в чистом клоне репозитория.
- *
- * Когда появится API, меняется только тело этой функции.
+ * Чеки пользователя из API. Фикстуры spike больше не используются в UI.
  */
-async function loadAll(): Promise<SourcedReceipt[]> {
-  try {
-    const local = await $fetch<SourcedReceipt[]>('/.local/receipts.json', {
-      responseType: 'json',
-    })
-    if (Array.isArray(local) && local.length > 0) return local
-  } catch {
-    // локальной фикстуры нет — это норма
-  }
-
-  return [createDemoReceipt()]
-}
-
 export function useReceiptList() {
-  return useAsyncData('receipts', loadAll, { default: () => [] as SourcedReceipt[] })
+  const api = useApi()
+
+  return useAsyncData('receipts', () => api.getReceiptList(), {
+    default: () => [] as ReceiptListItem[],
+    transform: (response) => response.items,
+  })
 }
 
 export function useReceipt(id: MaybeRefOrGetter<string>) {
+  const api = useApi()
+
   return useAsyncData(
     () => `receipt:${toValue(id)}`,
-    async () => {
-      const all = await loadAll()
-      return all.find((receipt) => receipt.id === toValue(id)) ?? all[0] ?? null
-    },
+    () => api.getReceipt(toValue(id)),
     { watch: [() => toValue(id)] },
   )
 }
+
+export type { ReceiptDetail as LoadedReceipt }

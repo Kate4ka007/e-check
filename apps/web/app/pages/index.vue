@@ -1,36 +1,43 @@
 <script setup lang="ts">
 import { formatMoney } from '@receipt-tracker/contracts'
 
-/**
- * Временный список чеков — точка входа в экран проверки.
- *
- * Полноценная история с фильтрами и пагинацией появится вместе с API,
- * сейчас нужна только навигация к тому, что есть в фикстуре.
- */
 const { t } = useT()
-const { data: receipts, status } = useReceiptList()
+const { data: receipts, status, refresh } = useReceiptList()
 
-const isDemo = computed(() => receipts.value?.length === 1 && receipts.value[0]?.id === 'demo')
+onMounted(() => {
+  void refresh()
+})
 </script>
 
 <template>
   <div class="mx-auto w-full max-w-3xl px-4 py-6">
-    <h1 class="mb-4 text-lg font-semibold text-(--ui-text-highlighted) sm:text-xl">
-      {{ t('nav.receipts') }}
-    </h1>
-
-    <UAlert
-      v-if="isDemo"
-      class="mb-4"
-      color="neutral"
-      variant="soft"
-      icon="i-lucide-info"
-      title="Синтетический образец"
-      description="Настоящие чеки в репозиторий не попадают. Чтобы посмотреть экран на реальном ответе модели, выполните pnpm fixture в каталоге spike."
-    />
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h1 class="text-lg font-semibold text-(--ui-text-highlighted) sm:text-xl">
+        {{ t('nav.receipts') }}
+      </h1>
+      <UButton to="/receipts/new" color="primary" size="sm" icon="i-lucide-plus">
+        {{ t('upload.title') }}
+      </UButton>
+    </div>
 
     <div v-if="status === 'pending'" class="py-16 text-center">
       <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-(--ui-text-muted)" />
+    </div>
+
+    <div
+      v-else-if="!receipts?.length"
+      class="rounded-lg border border-dashed border-(--ui-border) px-6 py-16 text-center"
+    >
+      <UIcon name="i-lucide-receipt" class="mx-auto mb-3 size-10 text-(--ui-text-dimmed)" />
+      <p class="text-sm font-medium text-(--ui-text-highlighted)">
+        {{ t('receipt.list.emptyTitle') }}
+      </p>
+      <p class="mt-1 text-sm text-(--ui-text-muted)">
+        {{ t('receipt.list.emptyDescription') }}
+      </p>
+      <UButton class="mt-4" to="/receipts/new" color="primary" icon="i-lucide-camera">
+        {{ t('upload.action') }}
+      </UButton>
     </div>
 
     <ul v-else class="space-y-2">
@@ -53,10 +60,7 @@ const isDemo = computed(() => receipts.value?.length === 1 && receipts.value[0]?
             <p class="tabular text-xs text-(--ui-text-muted)">
               {{ receipt.purchasedAt ?? t('common.notSet') }}
               <span class="mx-1 text-(--ui-text-dimmed)">·</span>
-              {{ receipt.items.length }} {{ t('receipt.items.title').toLowerCase() }}
-            </p>
-            <p v-if="receipt._source" class="truncate text-xs text-(--ui-text-dimmed)">
-              {{ receipt._source.model }} · {{ receipt._source.promptVersion }}
+              {{ receipt.itemCount }} {{ t('receipt.items.title').toLowerCase() }}
             </p>
           </div>
 
@@ -64,11 +68,13 @@ const isDemo = computed(() => receipts.value?.length === 1 && receipts.value[0]?
             <p class="tabular text-sm font-semibold text-(--ui-text-highlighted)">
               {{ formatMoney(receipt.totalMinor, receipt.currency) }}
             </p>
-            <UIcon
-              v-if="!receipt.validation.matchesTotal"
-              name="i-lucide-triangle-alert"
-              class="size-4 shrink-0 text-(--ui-warning)"
-              title="Сумма позиций расходится с итогом"
+            <UBadge
+              v-if="receipt.processingStatus !== 'COMPLETED' && receipt.processingStatus !== 'SKIPPED'"
+              :label="t(`processing.${receipt.processingStatus}`)"
+              color="neutral"
+              variant="soft"
+              size="xs"
+              class="mt-1"
             />
           </div>
         </NuxtLink>

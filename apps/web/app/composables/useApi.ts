@@ -1,7 +1,15 @@
 import {
+  ReceiptConfirmResponseSchema,
+  ReceiptDetailSchema,
+  ReceiptListResponseSchema,
   ReceiptProcessingResponseSchema,
   UserProfileSchema,
+  type ReceiptConfirmResponse,
+  type ReceiptDetail,
+  type ReceiptListResponse,
+  type ReceiptPatch,
   type ReceiptProcessingResponse,
+  type ReceiptReprocessResponse,
   type UserProfile,
 } from '@receipt-tracker/contracts'
 import { parseApiErrorBody } from '~/utils/apiErrors'
@@ -26,14 +34,17 @@ export function useApi() {
 
   async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
     const { retryOnUnauthorized = true, ...init } = options
+    const headers = new Headers(init.headers ?? {})
+    const hasJsonBody = init.body !== undefined && init.body !== null && init.body !== ''
+
+    if (hasJsonBody && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
 
     const response = await fetch(`${apiBaseUrl}${path}`, {
       ...init,
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(init.headers ?? {}),
-      },
+      headers,
     })
 
     if (response.status === 401 && retryOnUnauthorized && !path.startsWith('/auth/')) {
@@ -124,6 +135,37 @@ export function useApi() {
     async getReceiptProcessing(receiptId: string): Promise<ReceiptProcessingResponse> {
       const payload = await request<unknown>(`/receipts/${receiptId}/processing`)
       return ReceiptProcessingResponseSchema.parse(payload)
+    },
+    async getReceipt(receiptId: string): Promise<ReceiptDetail> {
+      const payload = await request<unknown>(`/receipts/${receiptId}`)
+      return ReceiptDetailSchema.parse(payload)
+    },
+    async getReceiptList(): Promise<ReceiptListResponse> {
+      const payload = await request<unknown>('/receipts')
+      return ReceiptListResponseSchema.parse(payload)
+    },
+    async patchReceipt(receiptId: string, patch: ReceiptPatch): Promise<ReceiptDetail> {
+      const payload = await request<unknown>(`/receipts/${receiptId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      })
+      return ReceiptDetailSchema.parse(payload)
+    },
+    async confirmReceipt(receiptId: string): Promise<ReceiptConfirmResponse> {
+      const payload = await request<unknown>(`/receipts/${receiptId}/confirm`, {
+        method: 'POST',
+        body: '{}',
+      })
+      const parsed = ReceiptConfirmResponseSchema.safeParse(payload)
+      if (!parsed.success) {
+        throw new Error(`Invalid confirm response: ${parsed.error.message}`)
+      }
+      return parsed.data
+    },
+    async reprocessReceipt(receiptId: string): Promise<ReceiptReprocessResponse> {
+      return request<ReceiptReprocessResponse>(`/receipts/${receiptId}/reprocess`, {
+        method: 'POST',
+      })
     },
   }
 }

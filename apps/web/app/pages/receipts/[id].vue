@@ -4,7 +4,10 @@ import {
   formatMoney,
   validateReceiptSum,
   type ReceiptDetail,
+  type ReceiptPatch,
 } from '@receipt-tracker/contracts'
+import type { ApiClientError } from '~/composables/useApi'
+import { messageKeyForError } from '~/utils/apiErrors'
 import { inputUi, selectUi, textareaUi } from '~/utils/formUi'
 
 /**
@@ -17,6 +20,7 @@ import { inputUi, selectUi, textareaUi } from '~/utils/formUi'
  */
 const route = useRoute()
 const { t } = useT()
+const api = useApi()
 
 const id = computed(() => String(route.params.id))
 const { data: loaded, status } = useReceipt(id)
@@ -74,11 +78,20 @@ const liveValidation = computed(() =>
     : { itemsSumMinor: 0, matchesTotal: false, differenceMinor: 0 },
 )
 
+function stripVolatile(receipt: ReceiptDetail) {
+  const copy = structuredClone(toRaw(receipt))
+  copy.imageUrl = null
+  copy.thumbnailUrl = null
+  copy.updatedAt = ''
+  copy.confirmedAt = copy.confirmedAt ?? null
+  return copy
+}
+
 const isDirty = computed(
   () =>
     !!draft.value &&
     !!loaded.value &&
-    JSON.stringify(draft.value) !== JSON.stringify(toRaw(loaded.value)),
+    JSON.stringify(stripVolatile(draft.value)) !== JSON.stringify(stripVolatile(loaded.value)),
 )
 
 const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((code) => ({
@@ -89,18 +102,93 @@ const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((c
 const showImage = ref(true)
 
 const saveState = ref<'idle' | 'saving' | 'saved'>('idle')
+const confirmState = ref<'idle' | 'confirming' | 'confirmed'>('idle')
+const errorMessage = ref<string | null>(null)
+const confirmWarnings = ref<Array<{ code: string; differenceMinor: number }>>([])
 
-async function save() {
-  if (!draft.value) return
+watch(id, () => {
+  errorMessage.value = null
+  confirmWarnings.value = []
+  saveState.value = 'idle'
+  confirmState.value = 'idle'
+})
+
+function toPatchPayload(draft: ReceiptDetail): ReceiptPatch {
+  const items = draft.items
+    .filter((item) => item.name.trim().length > 0)
+    .map((item) => ({
+      id: item.id.startsWith('new-') ? undefined : item.id,
+      name: item.name.trim(),
+      lineType: item.lineType,
+      quantity: item.quantity,
+      unit: item.unit,
+      unitPriceMinor: item.unitPriceMinor,
+      totalPriceMinor: item.totalPriceMinor,
+      categoryId: item.categoryId,
+    }))
+
+  return {
+    merchantName: draft.merchant?.name?.trim() ? draft.merchant.name.trim() : null,
+    purchasedAt: draft.purchasedAt,
+    purchasedTime: draft.purchasedTime,
+    currency: draft.currency,
+    subtotalMinor: draft.subtotalMinor,
+    taxTotalMinor: draft.taxTotalMinor,
+    discountTotalMinor: draft.discountTotalMinor,
+    totalMinor: draft.totalMinor,
+    note: draft.note?.trim() ? draft.note.trim() : null,
+    items,
+  }
+}
+
+async function save(): Promise<boolean> {
+  if (!draft.value) return false
   saveState.value = 'saving'
+  errorMessage.value = null
 
-  // Бэкенда пока нет. Когда появится — здесь будет PATCH /receipts/:id,
-  // а сверку сумм в ответе вернёт сервер.
-  await new Promise((resolve) => setTimeout(resolve, 400))
-  loaded.value = structuredClone(toRaw(draft.value))
+  try {
+    const updated = await api.patchReceipt(id.value, toPatchPayload(draft.value))
+    draft.value = structuredClone(updated)
+    loaded.value = updated
+    saveState.value = 'saved'
+    setTimeout(() => (saveState.value = 'idle'), 1500)
+    return true
+  } catch (error) {
+    const apiError = error as ApiClientError
+    const code = apiError.body?.code
+    errorMessage.value = code ? t(messageKeyForError(code)) : t('receipt.error.saveFailed')
+    saveState.value = 'idle'
+    return false
+  }
+}
 
-  saveState.value = 'saved'
-  setTimeout(() => (saveState.value = 'idle'), 1500)
+async function confirm() {
+  if (!draft.value || confirmState.value === 'confirming') return
+  confirmState.value = 'confirming'
+  errorMessage.value = null
+  confirmWarnings.value = []
+
+  try {
+    if (isDirty.value && !(await save())) {
+      confirmState.value = 'idle'
+      return
+    }
+
+    const result = await api.confirmReceipt(id.value)
+    confirmWarnings.value = result.warnings
+
+    const refreshed = await api.getReceipt(id.value)
+    draft.value = structuredClone(refreshed)
+    loaded.value = refreshed
+    errorMessage.value = null
+    confirmState.value = 'confirmed'
+    setTimeout(() => (confirmState.value = 'idle'), 1500)
+  } catch (error) {
+    const apiError = error as ApiClientError
+    const code = apiError.body?.code
+    errorMessage.value = code ? t(messageKeyForError(code)) : t('receipt.error.confirmFailed')
+    confirmState.value = 'idle'
+  }
 }
 
 function discard() {
@@ -154,6 +242,25 @@ const unknownCategories = computed(() => {
           />
         </div>
       </header>
+
+      <UAlert
+        v-if="errorMessage"
+        class="mb-4"
+        color="error"
+        variant="soft"
+        icon="i-lucide-circle-alert"
+        :title="errorMessage"
+      />
+
+      <UAlert
+        v-if="confirmWarnings.length > 0"
+        class="mb-4"
+        color="warning"
+        variant="soft"
+        icon="i-lucide-triangle-alert"
+        :title="t('receipt.confirm.warningsTitle')"
+        :description="t('receipt.confirm.sumMismatch', { amount: confirmWarnings[0]?.differenceMinor ?? 0 })"
+      />
 
       <div class="grid gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <!-- Изображение: на узком экране сворачивается, чтобы не оттеснять поля -->
@@ -283,8 +390,23 @@ const unknownCategories = computed(() => {
                 "
                 :icon="saveState === 'saved' ? 'i-lucide-check' : undefined"
                 :loading="saveState === 'saving'"
-                :disabled="!isDirty && saveState === 'idle'"
+                :disabled="(!isDirty && saveState === 'idle') || confirmState === 'confirming'"
+                color="neutral"
+                variant="soft"
                 @click="save"
+              />
+              <UButton
+                v-if="draft.status === 'DRAFT'"
+                :label="
+                  confirmState === 'confirming'
+                    ? t('receipt.action.confirming')
+                    : confirmState === 'confirmed'
+                      ? t('receipt.action.confirmed')
+                      : t('receipt.action.confirm')
+                "
+                :icon="confirmState === 'confirmed' ? 'i-lucide-check' : undefined"
+                :loading="confirmState === 'confirming'"
+                @click="confirm"
               />
             </div>
           </div>

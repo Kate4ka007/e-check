@@ -15,6 +15,8 @@ const ERROR_MESSAGES: Partial<Record<ApiErrorCode, TranslationKey>> = {
   RECEIPT_IMAGE_INVALID: 'upload.error.imageInvalid',
   IDEMPOTENCY_KEY_REUSED: 'upload.error.idempotency',
   RATE_LIMIT_EXCEEDED: 'upload.error.rateLimit',
+  RECEIPT_INCOMPLETE: 'receipt.error.incomplete',
+  PROCESSING_ALREADY_RUNNING: 'processing.alreadyRunning',
   VALIDATION_FAILED: 'auth.error.validationFailed',
   INTERNAL_ERROR: 'auth.error.internal',
 }

@@ -59,6 +59,8 @@ export const ru = {
   'receipt.field.notePlaceholder': 'Для чего эта покупка, если нужно помнить',
 
   'receipt.items.title': 'Позиции',
+  'receipt.list.emptyTitle': 'Пока нет чеков',
+  'receipt.list.emptyDescription': 'Загрузите фото чека — мы распознаем его и сохраним здесь.',
   'receipt.items.empty': 'Ни одной позиции. Можно сохранить только итоговую сумму.',
   'receipt.items.add': 'Добавить позицию',
   'receipt.items.remove': 'Удалить позицию',
@@ -98,7 +100,14 @@ export const ru = {
   'receipt.action.confirm': 'Подтвердить',
   'receipt.action.saving': 'Сохраняем…',
   'receipt.action.saved': 'Сохранено',
+  'receipt.action.confirming': 'Подтверждаем…',
+  'receipt.action.confirmed': 'Подтверждено',
   'receipt.action.discard': 'Отменить правки',
+  'receipt.confirm.warningsTitle': 'Чек сохранён с предупреждениями',
+  'receipt.confirm.sumMismatch': 'Сумма позиций расходится с итогом на {amount} коп.',
+  'receipt.error.saveFailed': 'Не удалось сохранить изменения',
+  'receipt.error.confirmFailed': 'Не удалось подтвердить чек',
+  'receipt.error.incomplete': 'Заполните обязательные поля: дата, валюта и итог',
 
   'receipt.status.DRAFT': 'Черновик',
   'receipt.status.CONFIRMED': 'Подтверждён',
@@ -114,6 +123,7 @@ export const ru = {
   'processing.stage.NORMALIZING': 'Проверяем результат…',
   'processing.failedHint': 'Не удалось распознать чек. Можно попробовать ещё раз или ввести данные вручную.',
   'processing.timeout': 'Обработка занимает больше обычного. Чек появится в списке, когда распознавание завершится.',
+  'processing.alreadyRunning': 'Чек уже обрабатывается',
 
   'common.notSet': 'не указано',
   'common.cancel': 'Отмена',

@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
   HttpCode,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -14,7 +16,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import {
   ApiError,
+  ReceiptPatchSchema,
+  type ReceiptConfirmResponse,
+  type ReceiptDetail,
+  type ReceiptListResponse,
+  type ReceiptPatch,
   type ReceiptProcessingResponse,
+  type ReceiptReprocessResponse,
   type ReceiptUploadResponse,
 } from '@receipt-tracker/contracts'
 import type { Request, Response } from 'express'
@@ -62,11 +70,48 @@ export class ReceiptsController {
     return result.body
   }
 
+  @Get()
+  async list(@Req() req: Request): Promise<ReceiptListResponse> {
+    return this.receipts.list(req.userId!)
+  }
+
   @Get(':id/processing')
   async getProcessing(
     @Param('id') receiptId: string,
     @Req() req: Request,
   ): Promise<ReceiptProcessingResponse> {
     return this.receipts.getProcessingStatus(req.userId!, receiptId)
+  }
+
+  @Get(':id')
+  async getById(@Param('id') receiptId: string, @Req() req: Request): Promise<ReceiptDetail> {
+    return this.receipts.getById(req.userId!, receiptId)
+  }
+
+  @Patch(':id')
+  async patch(
+    @Param('id') receiptId: string,
+    @Body() body: unknown,
+    @Req() req: Request,
+  ): Promise<ReceiptDetail> {
+    const patch = ReceiptPatchSchema.parse(body) as ReceiptPatch
+    return this.receipts.patch(req.userId!, receiptId, patch)
+  }
+
+  @Post(':id/confirm')
+  async confirm(
+    @Param('id') receiptId: string,
+    @Req() req: Request,
+  ): Promise<ReceiptConfirmResponse> {
+    return this.receipts.confirm(req.userId!, receiptId)
+  }
+
+  @Post(':id/reprocess')
+  @HttpCode(202)
+  async reprocess(
+    @Param('id') receiptId: string,
+    @Req() req: Request,
+  ): Promise<ReceiptReprocessResponse> {
+    return this.receipts.reprocess(req.userId!, receiptId)
   }
 }
