@@ -33,7 +33,7 @@ const { t } = useT()
       />
       <UIcon
         v-else-if="source === 'USER'"
-        name="i-lucide-pencil"
+        name="i-lucide-user-round-check"
         class="size-3.5 text-(--ui-text-dimmed)"
         :title="t('receipt.source.USER')"
       />

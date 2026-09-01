@@ -84,7 +84,7 @@ export const ru = {
   'receipt.confidence.low': 'Модель не уверена в этом поле',
   'receipt.confidence.legend': 'Подсвечены поля, в которых модель не уверена',
 
-  'receipt.source.USER': 'Исправлено вручную',
+  'receipt.source.USER': 'Вы изменили это поле',
   'receipt.source.AI': 'Распознано моделью',
   'receipt.source.OCR': 'Распознано моделью',
 

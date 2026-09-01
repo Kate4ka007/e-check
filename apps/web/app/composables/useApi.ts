@@ -152,6 +152,7 @@ export function useApi() {
       return ReceiptDetailSchema.parse(payload)
     },
     async confirmReceipt(receiptId: string): Promise<ReceiptConfirmResponse> {
+      // POST без тела ломает cookie/auth на некоторых прокси; confirm читает чек из БД по id.
       const payload = await request<unknown>(`/receipts/${receiptId}/confirm`, {
         method: 'POST',
         body: '{}',

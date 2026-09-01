@@ -79,20 +79,28 @@ const liveValidation = computed(() =>
     : { itemsSumMinor: 0, matchesTotal: false, differenceMinor: 0 },
 )
 
-function stripVolatile(receipt: ReceiptDetail) {
-  const copy = structuredClone(toRaw(receipt))
-  copy.imageUrl = null
-  copy.thumbnailUrl = null
-  copy.updatedAt = ''
-  copy.confirmedAt = copy.confirmedAt ?? null
-  return copy
+/** Снимок редактируемых полей для сравнения draft vs loaded. Поля читаются напрямую с reactive-объекта — иначе isDirty не реагирует на правки. */
+function editableSnapshot(receipt: ReceiptDetail) {
+  return {
+    merchant: receipt.merchant,
+    purchasedAt: receipt.purchasedAt,
+    purchasedTime: receipt.purchasedTime,
+    currency: receipt.currency,
+    subtotalMinor: receipt.subtotalMinor,
+    taxTotalMinor: receipt.taxTotalMinor,
+    discountTotalMinor: receipt.discountTotalMinor,
+    totalMinor: receipt.totalMinor,
+    note: receipt.note,
+    items: receipt.items,
+  }
 }
 
 const isDirty = computed(
   () =>
     !!draft.value &&
     !!loaded.value &&
-    JSON.stringify(stripVolatile(draft.value)) !== JSON.stringify(stripVolatile(loaded.value)),
+    JSON.stringify(editableSnapshot(draft.value)) !==
+      JSON.stringify(editableSnapshot(loaded.value)),
 )
 
 const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((code) => ({
@@ -210,7 +218,7 @@ async function confirm() {
   confirmWarnings.value = []
 
   try {
-    if (isDirty.value && !(await save())) {
+    if (!(await save())) {
       confirmState.value = 'idle'
       return
     }
