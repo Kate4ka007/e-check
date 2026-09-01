@@ -108,11 +108,60 @@ export const ru = {
   'processing.PROCESSING': 'Читаем чек…',
   'processing.COMPLETED': 'Распознан',
   'processing.FAILED': 'Не удалось прочитать',
-  'processing.MANUAL': 'Введён вручную',
+  'processing.SKIPPED': 'Введён вручную',
 
   'common.notSet': 'не указано',
   'common.cancel': 'Отмена',
   'common.of': 'из',
+
+  'auth.login.title': 'Вход',
+  'auth.login.subtitle': 'Войдите, чтобы продолжить работу с чеками.',
+  'auth.login.action': 'Войти',
+  'auth.login.noAccount': 'Нет аккаунта?',
+  'auth.login.registerLink': 'Зарегистрироваться',
+
+  'auth.register.title': 'Регистрация',
+  'auth.register.subtitle': 'Создайте аккаунт для учёта расходов.',
+  'auth.register.action': 'Создать аккаунт',
+  'auth.register.hasAccount': 'Уже есть аккаунт?',
+  'auth.register.loginLink': 'Войти',
+  'auth.register.timezoneHint': 'Часовой пояс: {timezone}',
+
+  'auth.field.email': 'Email',
+  'auth.field.password': 'Пароль',
+  'auth.field.passwordHint': 'Не короче 10 символов',
+  'auth.field.baseCurrency': 'Валюта по умолчанию',
+
+  'auth.action.logout': 'Выйти',
+
+  'auth.error.invalidCredentials': 'Неверный email или пароль',
+  'auth.error.emailTaken': 'Этот email уже занят',
+  'auth.error.sessionExpired': 'Сессия истекла — войдите снова',
+  'auth.error.sessionRevoked': 'Сессия отозвана — войдите снова',
+  'auth.error.unauthenticated': 'Нужно войти в аккаунт',
+  'auth.error.passwordTooWeak': 'Пароль слишком слабый',
+  'auth.error.registrationDisabled': 'Регистрация временно закрыта',
+  'auth.error.validationFailed': 'Проверьте введённые данные',
+  'auth.error.internal': 'Что-то пошло не так. Попробуйте позже.',
+
+  'upload.title': 'Новый чек',
+  'upload.subtitle': 'Сфотографируйте или выберите изображение чека.',
+  'upload.pickFile': 'Выбрать файл',
+  'upload.camera': 'Камера',
+  'upload.manualEntry': 'Ввести данные вручную без распознавания',
+  'upload.action': 'Загрузить',
+  'upload.uploading': 'Загружаем…',
+  'upload.backToList': 'К списку чеков',
+  'upload.success.title': 'Чек загружен',
+  'upload.success.description':
+    'Файл сохранён. Распознавание и экран проверки подключим на следующем этапе.',
+  'upload.error.internal': 'Не удалось загрузить чек. Попробуйте позже.',
+  'upload.error.fileMissing': 'Выберите файл',
+  'upload.error.fileTooLarge': 'Файл слишком большой',
+  'upload.error.fileTypeUnsupported': 'Формат файла не поддерживается',
+  'upload.error.imageInvalid': 'Не удалось прочитать изображение',
+  'upload.error.idempotency': 'Повтор запроса с другими данными',
+  'upload.error.rateLimit': 'Слишком много загрузок. Подождите немного.',
 } as const
 
 export type TranslationKey = keyof typeof ru

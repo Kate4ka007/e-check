@@ -1,0 +1,37 @@
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Queue } from 'bullmq'
+import { ENV } from '../config/config.module'
+import type { Env } from '../config/env.schema'
+
+export const RECEIPT_PROCESSING_QUEUE = 'receipt-processing'
+
+export interface ReceiptProcessingJobData {
+  receiptId: string
+  userId: string
+  requestId: string
+}
+
+@Injectable()
+export class ReceiptQueueService implements OnModuleDestroy {
+  private readonly queue: Queue<ReceiptProcessingJobData>
+
+  constructor(@Inject(ENV) private readonly env: Env) {
+    this.queue = new Queue<ReceiptProcessingJobData>(RECEIPT_PROCESSING_QUEUE, {
+      connection: { url: env.REDIS_URL },
+      defaultJobOptions: {
+        removeOnComplete: 100,
+        removeOnFail: 200,
+      },
+    })
+  }
+
+  async enqueue(data: ReceiptProcessingJobData): Promise<void> {
+    await this.queue.add('process', data, {
+      jobId: `${data.receiptId}-${data.requestId.replace(/-/g, '')}`,
+    })
+  }
+
+  async onModuleDestroy() {
+    await this.queue.close()
+  }
+}

@@ -6,7 +6,7 @@ export const PROCESSING_STATUS = [
   'PROCESSING',
   'COMPLETED',
   'FAILED',
-  'MANUAL',
+  'SKIPPED',
 ] as const
 export const CONFIDENCE_LEVEL = ['HIGH', 'MEDIUM', 'LOW'] as const
 export const FIELD_SOURCE = ['OCR', 'AI', 'USER'] as const

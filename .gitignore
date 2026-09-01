@@ -3,11 +3,17 @@ node_modules/
 
 dist/
 build/
+apps/api/src/generated/
 .output/
 .nuxt/
 .nitro/
 coverage/
 *.tsbuildinfo
+
+# Случайная компиляция tsc прямо в src/ (должен быть только dist/)
+packages/contracts/src/**/*.js
+packages/contracts/src/**/*.js.map
+packages/contracts/src/**/*.d.ts
 
 .env
 .env.*

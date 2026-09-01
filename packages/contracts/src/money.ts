@@ -121,6 +121,63 @@ export function formatMoney(
   }
 }
 
+/** Сложение минорных единиц. */
+export function addMinor(a: number, b: number): number {
+  assertIntegerMinor(a)
+  assertIntegerMinor(b)
+  return a + b
+}
+
+/** Вычитание минорных единиц. */
+export function subtractMinor(a: number, b: number): number {
+  assertIntegerMinor(a)
+  assertIntegerMinor(b)
+  return a - b
+}
+
+/** Отказ на дробном значении там, где ожидается целое. */
+export function assertIntegerMinor(value: number): void {
+  if (!Number.isInteger(value)) {
+    throw new Error(`Expected integer minor units, got ${value}`)
+  }
+}
+
+/**
+ * Пропорциональное распределение суммы методом наибольших остатков.
+ * Части всегда в сумме равны totalMinor.
+ */
+export function distributeSum(totalMinor: number, weights: readonly number[]): number[] {
+  assertIntegerMinor(totalMinor)
+
+  if (weights.length === 0) return []
+
+  const safeWeights = weights.map((weight) => (weight > 0 ? weight : 0))
+  const weightSum = safeWeights.reduce((sum, weight) => sum + weight, 0)
+
+  if (weightSum === 0) {
+    const base = Math.trunc(totalMinor / weights.length)
+    const remainder = totalMinor - base * weights.length
+    return weights.map((_, index) => base + (index < remainder ? 1 : 0))
+  }
+
+  const exactShares = safeWeights.map((weight) => (totalMinor * weight) / weightSum)
+  const floors = exactShares.map((share) => Math.trunc(share))
+  let remainder = totalMinor - floors.reduce((sum, part) => sum + part, 0)
+
+  const ranked = exactShares
+    .map((share, index) => ({ index, fraction: share - floors[index]! }))
+    .sort((a, b) => b.fraction - a.fraction)
+
+  const parts = [...floors]
+  for (const { index } of ranked) {
+    if (remainder <= 0) break
+    parts[index]! += 1
+    remainder -= 1
+  }
+
+  return parts
+}
+
 /**
  * Количество хранится строкой: 0.532 в виде числа с плавающей точкой
  * теряет точность, а количество участвует в сверке сумм.

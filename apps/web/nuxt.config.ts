@@ -1,3 +1,9 @@
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const rootDir = dirname(fileURLToPath(import.meta.url))
+const contractsEntry = resolve(rootDir, '../../packages/contracts/src/index.ts')
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-30',
 
@@ -5,11 +11,28 @@ export default defineNuxtConfig({
   // всё равно рисуется после проверки сессии. См. ADR-0008.
   ssr: false,
 
-  // Pinia появится вместе с авторизацией: хранить в сторе нечего,
-  // пока нет ни сессии, ни глобального состояния интерфейса.
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@pinia/nuxt'],
+
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001/api/v1',
+      sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? '',
+    },
+  },
 
   css: ['~/assets/css/main.css'],
+
+  alias: {
+    '@receipt-tracker/contracts': contractsEntry,
+  },
+
+  vite: {
+    resolve: {
+      alias: {
+        '@receipt-tracker/contracts': contractsEntry,
+      },
+    },
+  },
 
   devtools: { enabled: true },
 

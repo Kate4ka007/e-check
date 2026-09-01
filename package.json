@@ -11,8 +11,15 @@
     "node": "22.17.1"
   },
   "scripts": {
-    "dev": "pnpm --filter @receipt-tracker/web dev",
-    "build": "pnpm --filter @receipt-tracker/web build",
+    "dev": "pnpm --parallel --filter @receipt-tracker/web --filter @receipt-tracker/api dev",
+    "dev:web": "pnpm --filter @receipt-tracker/web dev",
+    "dev:api": "pnpm --filter @receipt-tracker/api dev",
+    "build": "pnpm --filter @receipt-tracker/contracts build && pnpm --filter @receipt-tracker/web build && pnpm --filter @receipt-tracker/api build",
+    "db:generate": "pnpm --filter @receipt-tracker/api db:generate",
+    "db:migrate": "pnpm --filter @receipt-tracker/api db:migrate",
+    "db:seed": "pnpm --filter @receipt-tracker/api db:seed",
+    "test": "pnpm --filter @receipt-tracker/contracts test && pnpm --filter @receipt-tracker/api test",
+    "test:integration": "pnpm --filter @receipt-tracker/api test:integration",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

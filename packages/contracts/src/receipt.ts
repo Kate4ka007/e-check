@@ -135,3 +135,11 @@ export const ReceiptListItemSchema = ReceiptDetailSchema.pick({
 })
 
 export type ReceiptListItem = z.infer<typeof ReceiptListItemSchema>
+
+export const ReceiptUploadResponseSchema = z.object({
+  receiptId: z.uuid(),
+  processingStatus: ProcessingStatusSchema,
+  duplicate: z.boolean(),
+})
+
+export type ReceiptUploadResponse = z.infer<typeof ReceiptUploadResponseSchema>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { t } = useT()
+const auth = useAuthStore()
 
 const links = [
   { to: '/', label: t('nav.receipts'), icon: 'i-lucide-receipt' },
@@ -32,7 +33,30 @@ const links = [
           </nav>
         </div>
 
-        <UColorModeButton class="shrink-0" />
+        <div class="flex shrink-0 items-center gap-1">
+          <UButton
+            v-if="auth.user"
+            to="/receipts/new"
+            color="primary"
+            variant="soft"
+            size="sm"
+            icon="i-lucide-plus"
+            :label="t('nav.add')"
+          />
+          <span v-if="auth.user" class="hidden truncate text-xs text-(--ui-text-dimmed) sm:block">
+            {{ auth.user.email }}
+          </span>
+          <UButton
+            v-if="auth.user"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-log-out"
+            :label="t('auth.action.logout')"
+            @click="auth.logout()"
+          />
+          <UColorModeButton />
+        </div>
       </div>
     </header>
 

@@ -1,0 +1,27 @@
+export function applyIntegrationEnv(): void {
+  process.env.NODE_ENV = 'test'
+  process.env.PORT = '3099'
+  process.env.APP_URL = 'http://localhost:3000'
+  process.env.DATABASE_URL =
+    process.env.TEST_DATABASE_URL ??
+    'postgresql://receipt:receipt@localhost:5433/receipt_test'
+  process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/1'
+  process.env.JWT_ACCESS_SECRET = 'integration-test-jwt-secret'
+  process.env.JWT_ACCESS_TTL = '15m'
+  process.env.REFRESH_TTL = '30d'
+  process.env.COOKIE_DOMAIN = ''
+  process.env.COOKIE_SECURE = 'false'
+  process.env.S3_ENDPOINT = 'http://localhost:9000'
+  process.env.S3_REGION = 'auto'
+  process.env.S3_BUCKET = 'receipts-test'
+  process.env.S3_ACCESS_KEY = 'minio'
+  process.env.S3_SECRET_KEY = 'minio123456'
+  process.env.S3_FORCE_PATH_STYLE = 'true'
+  process.env.EXTRACTOR_KIND = 'mock'
+  process.env.EXTRACTOR_BASE_URL = 'https://openrouter.ai/api/v1'
+  process.env.EXTRACTOR_API_KEY = ''
+  process.env.EXTRACTOR_MODELS = ''
+  process.env.REGISTRATION_ENABLED = 'true'
+  process.env.SENTRY_DSN = ''
+  process.env.LOG_LEVEL = 'silent'
+}
