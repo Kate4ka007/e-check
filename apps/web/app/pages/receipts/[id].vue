@@ -9,6 +9,7 @@ import {
 } from '@receipt-tracker/contracts'
 import type { ApiClientError } from '~/composables/useApi'
 import { messageKeyForError } from '~/utils/apiErrors'
+import { currencyOptions } from '~/utils/currencyOptions'
 import { inputUi, selectUi, textareaUi } from '~/utils/formUi'
 
 /**
@@ -128,11 +129,6 @@ const isDirty = computed(() => {
     JSON.stringify(editableSnapshot(loaded.value))
   )
 })
-
-const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'UAH', 'GBP', 'CZK'].map((code) => ({
-  label: code,
-  value: code,
-}))
 
 const showImage = ref(true)
 

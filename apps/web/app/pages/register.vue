@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { currencyOptions } from '~/utils/currencyOptions'
+
 definePageMeta({
   layout: false,
 })
@@ -12,11 +14,6 @@ const baseCurrency = ref('BYN')
 const pending = ref(false)
 
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'UAH', 'GBP', 'CZK'].map((code) => ({
-  label: code,
-  value: code,
-}))
 
 async function submit() {
   pending.value = true
