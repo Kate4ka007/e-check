@@ -4,6 +4,7 @@ import {
   formatMoney,
   validateReceiptSum,
   type ReceiptDetail,
+  type ReceiptItem,
   type ReceiptPatch,
 } from '@receipt-tracker/contracts'
 import type { ApiClientError } from '~/composables/useApi'
@@ -79,7 +80,21 @@ const liveValidation = computed(() =>
     : { itemsSumMinor: 0, matchesTotal: false, differenceMinor: 0 },
 )
 
-/** Снимок редактируемых полей для сравнения draft vs loaded. Поля читаются напрямую с reactive-объекта — иначе isDirty не реагирует на правки. */
+/** Снимок одной позиции — каждое поле читается явно для отслеживания правок. */
+function itemSnapshot(item: ReceiptItem) {
+  return {
+    id: item.id,
+    name: item.name,
+    lineType: item.lineType,
+    quantity: item.quantity,
+    unit: item.unit,
+    unitPriceMinor: item.unitPriceMinor,
+    totalPriceMinor: item.totalPriceMinor,
+    categoryId: item.categoryId,
+  }
+}
+
+/** Снимок редактируемых полей для сравнения draft vs loaded. */
 function editableSnapshot(receipt: ReceiptDetail) {
   return {
     merchant: receipt.merchant,
@@ -91,17 +106,28 @@ function editableSnapshot(receipt: ReceiptDetail) {
     discountTotalMinor: receipt.discountTotalMinor,
     totalMinor: receipt.totalMinor,
     note: receipt.note,
-    items: receipt.items,
+    items: receipt.items.map(itemSnapshot),
   }
 }
 
-const isDirty = computed(
-  () =>
-    !!draft.value &&
-    !!loaded.value &&
-    JSON.stringify(editableSnapshot(draft.value)) !==
-      JSON.stringify(editableSnapshot(loaded.value)),
+/** Правки позиций мутируют массив на месте — deep watch пересчитывает isDirty. */
+const draftRevision = ref(0)
+watch(
+  draft,
+  () => {
+    draftRevision.value++
+  },
+  { deep: true },
 )
+
+const isDirty = computed(() => {
+  draftRevision.value
+  if (!draft.value || !loaded.value) return false
+  return (
+    JSON.stringify(editableSnapshot(draft.value)) !==
+    JSON.stringify(editableSnapshot(loaded.value))
+  )
+})
 
 const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((code) => ({
   label: code,
