@@ -9,6 +9,7 @@ export function useReceiptList() {
   return useAsyncData('receipts', () => api.getReceiptList(), {
     default: () => [] as ReceiptListItem[],
     transform: (response) => response.items,
+    immediate: false,
   })
 }
 
