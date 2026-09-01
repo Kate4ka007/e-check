@@ -51,9 +51,14 @@ export default defineNuxtConfig({
     head: {
       title: 'Чеки',
       htmlAttrs: { lang: 'ru' },
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.svg' },
+      ],
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'theme-color', content: '#16A34A' },
       ],
     },
   },
