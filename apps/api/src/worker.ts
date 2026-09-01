@@ -1,4 +1,5 @@
 import { Worker } from 'bullmq'
+import { ensureSystemCategories } from './categories/ensure-system-categories'
 import { loadEnv } from './config/env.schema'
 import { RECEIPT_PROCESSING_QUEUE, type ReceiptProcessingJobData } from './receipts/receipt-queue.service'
 import { createWorkerDeps } from './worker/create-worker-deps'
@@ -7,6 +8,8 @@ async function main() {
   const env = loadEnv()
   const { prisma, storage, orchestrator } = createWorkerDeps(env)
 
+  await prisma.$connect()
+  await ensureSystemCategories(prisma)
   await storage.ensureBucket()
 
   const worker = new Worker<ReceiptProcessingJobData>(

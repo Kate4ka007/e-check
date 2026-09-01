@@ -1,5 +1,6 @@
-import { CATEGORY_SLUGS, type CategorySlug } from '@receipt-tracker/contracts'
+import { CATEGORY_SLUGS } from '@receipt-tracker/contracts'
 import type { PrismaClient } from '../generated/prisma'
+import { ensureSystemCategories } from '../categories/ensure-system-categories'
 
 const SLUG_SET = new Set<string>(CATEGORY_SLUGS)
 
@@ -14,6 +15,8 @@ export class ReceiptCategoryResolver {
   }
 
   private async load(prisma: PrismaClient): Promise<void> {
+    await ensureSystemCategories(prisma)
+
     const categories = await prisma.category.findMany({
       where: { userId: null, isSystem: true },
       select: { id: true, slug: true },

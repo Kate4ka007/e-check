@@ -115,6 +115,24 @@ describe('receipt review integration', () => {
     expect(patched.body.note).toBe('Проверено')
     expect(patched.body.fieldSources.merchantName).toBe('USER')
 
+    const itemsWithCategory = patched.body.items.map((item: { id: string }, index: number) => ({
+      id: item.id,
+      name: patched.body.items[index].name,
+      lineType: patched.body.items[index].lineType,
+      quantity: patched.body.items[index].quantity,
+      unit: patched.body.items[index].unit,
+      unitPriceMinor: patched.body.items[index].unitPriceMinor,
+      totalPriceMinor: patched.body.items[index].totalPriceMinor,
+      categoryId: index === 0 ? 'groceries' : patched.body.items[index].categoryId,
+    }))
+
+    const withCategory = await agent
+      .patch(`/api/v1/receipts/${receiptId}`)
+      .send({ items: itemsWithCategory })
+      .expect(200)
+
+    expect(withCategory.body.items[0].categoryId).toBe('groceries')
+
     const confirmed = await agent.post(`/api/v1/receipts/${receiptId}/confirm`).expect(201)
     expect(confirmed.body).toMatchObject({
       status: 'CONFIRMED',

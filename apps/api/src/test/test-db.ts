@@ -1,5 +1,5 @@
 import { PrismaClient } from '../generated/prisma'
-import { CATEGORY_SLUGS } from '@receipt-tracker/contracts'
+import { ensureSystemCategories as seedSystemCategories } from '../categories/ensure-system-categories'
 import Redis from 'ioredis'
 
 let prisma: PrismaClient | null = null
@@ -10,32 +10,7 @@ export function getTestPrisma(): PrismaClient {
 }
 
 export async function ensureSystemCategories(): Promise<void> {
-  const client = getTestPrisma()
-  for (const [index, slug] of CATEGORY_SLUGS.entries()) {
-    const existing = await client.category.findFirst({
-      where: { slug, userId: null },
-    })
-
-    if (existing) {
-      await client.category.update({
-        where: { id: existing.id },
-        data: {
-          nameKey: `category.${slug}`,
-          isSystem: true,
-          sortOrder: index,
-        },
-      })
-    } else {
-      await client.category.create({
-        data: {
-          slug,
-          nameKey: `category.${slug}`,
-          isSystem: true,
-          sortOrder: index,
-        },
-      })
-    }
-  }
+  await seedSystemCategories(getTestPrisma())
 }
 
 export async function resetTestData(): Promise<void> {

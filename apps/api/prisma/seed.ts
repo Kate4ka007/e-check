@@ -1,36 +1,11 @@
 import { hash } from '@node-rs/argon2'
 import { PrismaClient } from '../src/generated/prisma'
-import { CATEGORY_SLUGS } from '@receipt-tracker/contracts'
+import { ensureSystemCategories } from '../src/categories/ensure-system-categories'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  for (const [index, slug] of CATEGORY_SLUGS.entries()) {
-    const existing = await prisma.category.findFirst({
-      where: { slug, userId: null },
-    })
-
-    if (existing) {
-      await prisma.category.update({
-        where: { id: existing.id },
-        data: {
-          nameKey: `category.${slug}`,
-          isSystem: true,
-          sortOrder: index,
-        },
-      })
-    } else {
-      await prisma.category.create({
-        data: {
-          slug,
-          nameKey: `category.${slug}`,
-          isSystem: true,
-          sortOrder: index,
-        },
-      })
-    }
-  }
-
+  await ensureSystemCategories(prisma)
   const email = 'dev@local.test'
   const password = process.env.SEED_DEV_PASSWORD ?? 'devpassword12'
 
