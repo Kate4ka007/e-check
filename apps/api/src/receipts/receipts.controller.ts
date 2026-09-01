@@ -1,7 +1,9 @@
 import {
   Controller,
+  Get,
   Headers,
   HttpCode,
+  Param,
   Post,
   Req,
   Res,
@@ -10,7 +12,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { ApiError, type ReceiptUploadResponse } from '@receipt-tracker/contracts'
+import {
+  ApiError,
+  type ReceiptProcessingResponse,
+  type ReceiptUploadResponse,
+} from '@receipt-tracker/contracts'
 import type { Request, Response } from 'express'
 import { memoryStorage } from 'multer'
 import { z } from 'zod'
@@ -54,5 +60,13 @@ export class ReceiptsController {
 
     res.status(result.statusCode)
     return result.body
+  }
+
+  @Get(':id/processing')
+  async getProcessing(
+    @Param('id') receiptId: string,
+    @Req() req: Request,
+  ): Promise<ReceiptProcessingResponse> {
+    return this.receipts.getProcessingStatus(req.userId!, receiptId)
   }
 }

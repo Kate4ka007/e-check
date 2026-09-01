@@ -56,6 +56,26 @@ export class StorageService implements OnModuleInit, OnModuleDestroy {
     )
   }
 
+  async getObject(key: string): Promise<Buffer> {
+    const response = await this.client.send(
+      new GetObjectCommand({
+        Bucket: this.env.S3_BUCKET,
+        Key: key,
+      }),
+    )
+
+    const body = response.Body
+    if (!body) {
+      throw new Error(`Empty object body for key ${key}`)
+    }
+
+    const chunks: Uint8Array[] = []
+    for await (const chunk of body as AsyncIterable<Uint8Array>) {
+      chunks.push(chunk)
+    }
+    return Buffer.concat(chunks)
+  }
+
   async deleteObject(key: string): Promise<void> {
     await this.client.send(
       new DeleteObjectCommand({
@@ -82,5 +102,9 @@ export class StorageService implements OnModuleInit, OnModuleDestroy {
 
   receiptThumbnailKey(userId: string, receiptId: string): string {
     return `receipts/${userId}/${receiptId}/thumb.jpg`
+  }
+
+  rawResultKey(userId: string, receiptId: string, jobId: string): string {
+    return `receipts/${userId}/${receiptId}/raw/${jobId}.json`
   }
 }

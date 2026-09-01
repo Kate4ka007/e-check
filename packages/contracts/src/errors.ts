@@ -11,6 +11,12 @@ export const AUTH_ERROR_CODES = [
   'AUTH_REGISTRATION_DISABLED',
 ] as const
 
+export const PROCESSING_ERROR_CODES = [
+  'EXTRACTION_FAILED',
+  'EXTRACTION_INVALID_RESPONSE',
+  'PROCESSING_TIMEOUT',
+] as const
+
 export const RECEIPT_ERROR_CODES = [
   'RECEIPT_FILE_MISSING',
   'RECEIPT_FILE_TOO_LARGE',
@@ -25,6 +31,7 @@ export const COMMON_ERROR_CODES = ['VALIDATION_FAILED', 'INTERNAL_ERROR', 'NOT_F
 export const ApiErrorCodeSchema = z.enum([
   ...AUTH_ERROR_CODES,
   ...RECEIPT_ERROR_CODES,
+  ...PROCESSING_ERROR_CODES,
   ...COMMON_ERROR_CODES,
 ])
 export type ApiErrorCode = z.infer<typeof ApiErrorCodeSchema>

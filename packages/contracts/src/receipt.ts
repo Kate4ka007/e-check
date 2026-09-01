@@ -5,6 +5,7 @@ import {
   FieldSourceSchema,
   ItemUnitSchema,
   LineTypeSchema,
+  ProcessingStageSchema,
   ProcessingStatusSchema,
   ReceiptStatusSchema,
 } from './enums.js'
@@ -143,3 +144,21 @@ export const ReceiptUploadResponseSchema = z.object({
 })
 
 export type ReceiptUploadResponse = z.infer<typeof ReceiptUploadResponseSchema>
+
+export const ProcessingErrorSchema = z.object({
+  code: z.enum(['EXTRACTION_FAILED', 'EXTRACTION_INVALID_RESPONSE', 'PROCESSING_TIMEOUT']),
+  retryable: z.boolean(),
+})
+
+export type ProcessingError = z.infer<typeof ProcessingErrorSchema>
+
+export const ReceiptProcessingResponseSchema = z.object({
+  receiptId: z.uuid(),
+  processingStatus: ProcessingStatusSchema,
+  stage: ProcessingStageSchema.nullable(),
+  startedAt: z.string().nullable(),
+  estimatedSeconds: z.number().int().nonnegative().nullable(),
+  error: ProcessingErrorSchema.nullable(),
+})
+
+export type ReceiptProcessingResponse = z.infer<typeof ReceiptProcessingResponseSchema>

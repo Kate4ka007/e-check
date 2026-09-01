@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { messageKeyForError, type ApiClientError } from '~/utils/apiErrors'
+import type { ReceiptProcessingResponse } from '@receipt-tracker/contracts'
+import type { ApiClientError } from '~/composables/useApi'
+import { messageKeyForError } from '~/utils/apiErrors'
 
 const { t } = useT()
 const api = useApi()
+const { pollUntilDone, stageLabel, statusLabel } = useReceiptProcessing()
 
 const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
 const manualEntry = ref(false)
 const uploading = ref(false)
+const processing = ref(false)
+const processingStatus = ref<ReceiptProcessingResponse | null>(null)
 const errorMessage = ref<string | null>(null)
 const successReceiptId = ref<string | null>(null)
 
@@ -24,6 +29,7 @@ function setFile(selected: File) {
   previewUrl.value = URL.createObjectURL(selected)
   errorMessage.value = null
   successReceiptId.value = null
+  processingStatus.value = null
 }
 
 async function resizeImage(source: File, maxSide = 2000): Promise<Blob> {
@@ -48,11 +54,28 @@ async function resizeImage(source: File, maxSide = 2000): Promise<Blob> {
   })
 }
 
+async function waitForProcessing(receiptId: string) {
+  processing.value = true
+  try {
+    const result = await pollUntilDone(receiptId)
+    processingStatus.value = result
+
+    if (result.processingStatus === 'FAILED') {
+      errorMessage.value = t('processing.failedHint')
+    }
+  } catch {
+    errorMessage.value = t('processing.timeout')
+  } finally {
+    processing.value = false
+  }
+}
+
 async function upload() {
-  if (!file.value || uploading.value) return
+  if (!file.value || uploading.value || processing.value) return
 
   uploading.value = true
   errorMessage.value = null
+  processingStatus.value = null
 
   try {
     const blob = await resizeImage(file.value)
@@ -63,18 +86,16 @@ async function upload() {
     }
 
     const result = await api.uploadReceipt(payload, crypto.randomUUID())
-
-    if (result.duplicate) {
-      successReceiptId.value = result.receiptId
-      errorMessage.value = null
-      return
-    }
-
     successReceiptId.value = result.receiptId
+
+    if (!manualEntry.value && result.processingStatus !== 'SKIPPED') {
+      await waitForProcessing(result.receiptId)
+    }
   } catch (error) {
     const apiError = error as ApiClientError
     const code = apiError.body?.code
     errorMessage.value = code ? t(messageKeyForError(code)) : t('upload.error.internal')
+    successReceiptId.value = null
   } finally {
     uploading.value = false
   }
@@ -95,7 +116,23 @@ onBeforeUnmount(() => {
     </p>
 
     <UAlert
-      v-if="successReceiptId"
+      v-if="processing || processingStatus"
+      class="mb-4"
+      :color="processingStatus?.processingStatus === 'FAILED' ? 'warning' : 'info'"
+      variant="soft"
+      :icon="processing ? 'i-lucide-loader-circle' : 'i-lucide-scan-text'"
+      :title="processingStatus ? statusLabel(processingStatus.processingStatus) : t('processing.PROCESSING')"
+      :description="
+        processing
+          ? stageLabel(processingStatus?.stage ?? 'EXTRACTING') ?? t('processing.PROCESSING')
+          : processingStatus?.processingStatus === 'COMPLETED'
+            ? t('upload.processingDone')
+            : t('processing.failedHint')
+      "
+    />
+
+    <UAlert
+      v-else-if="successReceiptId && manualEntry"
       class="mb-4"
       color="success"
       variant="soft"
@@ -158,16 +195,30 @@ onBeforeUnmount(() => {
       <UButton
         block
         color="primary"
-        :disabled="!file || uploading"
-        :loading="uploading"
+        :disabled="!file || uploading || processing"
+        :loading="uploading || processing"
         icon="i-lucide-send"
         @click="upload"
       >
-        {{ uploading ? t('upload.uploading') : t('upload.action') }}
+        {{
+          uploading
+            ? t('upload.uploading')
+            : processing
+              ? t('processing.PROCESSING')
+              : t('upload.action')
+        }}
       </UButton>
     </div>
 
     <div v-else class="flex gap-2">
+      <UButton
+        v-if="processingStatus?.processingStatus === 'COMPLETED'"
+        :to="`/receipts/${successReceiptId}`"
+        color="primary"
+        variant="soft"
+      >
+        {{ t('upload.openReceipt') }}
+      </UButton>
       <UButton to="/" color="neutral" variant="soft">
         {{ t('upload.backToList') }}
       </UButton>

@@ -109,6 +109,11 @@ export const ru = {
   'processing.COMPLETED': 'Распознан',
   'processing.FAILED': 'Не удалось прочитать',
   'processing.SKIPPED': 'Введён вручную',
+  'processing.stage.PREPARING': 'Готовим изображение…',
+  'processing.stage.EXTRACTING': 'Извлекаем данные…',
+  'processing.stage.NORMALIZING': 'Проверяем результат…',
+  'processing.failedHint': 'Не удалось распознать чек. Можно попробовать ещё раз или ввести данные вручную.',
+  'processing.timeout': 'Обработка занимает больше обычного. Чек появится в списке, когда распознавание завершится.',
 
   'common.notSet': 'не указано',
   'common.cancel': 'Отмена',
@@ -154,7 +159,9 @@ export const ru = {
   'upload.backToList': 'К списку чеков',
   'upload.success.title': 'Чек загружен',
   'upload.success.description':
-    'Файл сохранён. Распознавание и экран проверки подключим на следующем этапе.',
+    'Файл сохранён. После распознавания можно проверить данные на экране чека.',
+  'upload.processingDone': 'Чек распознан. Можно проверить данные перед сохранением.',
+  'upload.openReceipt': 'Открыть чек',
   'upload.error.internal': 'Не удалось загрузить чек. Попробуйте позже.',
   'upload.error.fileMissing': 'Выберите файл',
   'upload.error.fileTooLarge': 'Файл слишком большой',

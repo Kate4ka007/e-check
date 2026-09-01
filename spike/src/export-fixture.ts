@@ -2,8 +2,8 @@
  * Кладёт результат распознавания в apps/web как локальную фикстуру,
  * чтобы посмотреть экран проверки на настоящем ответе модели.
  *
- *   pnpm fixture                                 все успешные прогоны
- *   pnpm fixture -- --model openai-gpt-4o-mini   конкретная модель
+ *   pnpm fixture                                 прогоны модели из VISION_MODELS (.env)
+ *   pnpm fixture -- --model openai-gpt-4o-mini   конкретная модель (для сравнения)
  *
  * Каталог назначения в .gitignore: чеки — персональные данные и в
  * репозиторий попадать не должны. В репозитории лежит синтетический
@@ -11,9 +11,10 @@
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { config } from './config.js'
 import { prepareImage } from './image.js'
 import { parseMoneyToMinor, parseQuantity } from './money.js'
-import { listFixtures, listResults, type StoredResult } from './paths.js'
+import { listFixtures, listResults, modelTag, type StoredResult } from './paths.js'
 import type { ParsedItem, ParsedReceipt } from './schema.js'
 
 const TARGET_DIR = join(process.cwd(), '..', 'apps', 'web', 'public', '.local')
@@ -115,7 +116,14 @@ function toDetail(result: StoredResult, imageUrl: string) {
 async function main() {
   const args = process.argv.slice(2)
   const modelIndex = args.indexOf('--model')
-  const wantedModel = modelIndex !== -1 ? args[modelIndex + 1] : undefined
+  const preferredTag = modelTag(config.VISION_MODELS)
+  const wantedModel =
+    modelIndex !== -1 ? args[modelIndex + 1] : preferredTag || undefined
+
+  if (!wantedModel) {
+    out('\nЗадайте VISION_MODELS в spike/.env или передайте --model\n')
+    process.exit(1)
+  }
 
   const results = (await listResults()).filter((r) => r.ok && r.data)
   const fixtures = await listFixtures()
@@ -157,6 +165,7 @@ async function main() {
   await writeFile(join(TARGET_DIR, 'receipts.json'), JSON.stringify(receipts, null, 2), 'utf8')
 
   out(`\nГотово: ${receipts.length} чеков в apps/web/public/.local/`)
+  out(`Модель: ${wantedModel}`)
   out('Каталог в .gitignore — чеки в репозиторий не попадут.\n')
 }
 

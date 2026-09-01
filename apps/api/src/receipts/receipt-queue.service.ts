@@ -28,6 +28,8 @@ export class ReceiptQueueService implements OnModuleDestroy {
   async enqueue(data: ReceiptProcessingJobData): Promise<void> {
     await this.queue.add('process', data, {
       jobId: `${data.receiptId}-${data.requestId.replace(/-/g, '')}`,
+      attempts: this.env.EXTRACTOR_MAX_ATTEMPTS,
+      backoff: { type: 'exponential', delay: 2000 },
     })
   }
 

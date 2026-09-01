@@ -3,7 +3,9 @@ import {
   ApiError,
   EntryModeSchema,
   type EntryMode,
+  type ProcessingStage,
   type ProcessingStatus,
+  type ReceiptProcessingResponse,
   type ReceiptUploadResponse,
 } from '@receipt-tracker/contracts'
 import { randomUUID } from 'node:crypto'
@@ -167,6 +169,59 @@ export class ReceiptsService {
     )
 
     return { statusCode: 202, body }
+  }
+
+  async getProcessingStatus(
+    userId: string,
+    receiptId: string,
+  ): Promise<ReceiptProcessingResponse> {
+    const receipt = await this.prisma.receipt.findFirst({
+      where: { id: receiptId, userId, deletedAt: null },
+    })
+    if (!receipt) {
+      throw new ApiError('NOT_FOUND', 'Receipt not found', 404)
+    }
+
+    const job = await this.prisma.processingJob.findFirst({
+      where: { receiptId },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return {
+      receiptId: receipt.id,
+      processingStatus: receipt.processingStatus,
+      stage: this.mapProcessingStage(receipt.processingStatus),
+      startedAt: job?.startedAt?.toISOString() ?? null,
+      estimatedSeconds: receipt.processingStatus === 'PROCESSING' ? 15 : null,
+      error: this.mapProcessingError(receipt.processingStatus, job),
+    }
+  }
+
+  private mapProcessingStage(status: ProcessingStatus): ProcessingStage | null {
+    if (status === 'PENDING') return 'PREPARING'
+    if (status === 'PROCESSING') return 'EXTRACTING'
+    return null
+  }
+
+  private mapProcessingError(
+    status: ProcessingStatus,
+    job: {
+      errorCode: string | null
+      attempt: number
+      maxAttempts: number
+    } | null,
+  ): ReceiptProcessingResponse['error'] {
+    if (status !== 'FAILED' || !job) return null
+
+    const code =
+      job.errorCode === 'EXTRACTION_INVALID_RESPONSE'
+        ? 'EXTRACTION_INVALID_RESPONSE'
+        : 'EXTRACTION_FAILED'
+
+    return {
+      code,
+      retryable: job.attempt < job.maxAttempts,
+    }
   }
 
   private parseEntryMode(raw?: string): EntryMode {

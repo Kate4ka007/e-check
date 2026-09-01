@@ -1,4 +1,9 @@
-import { UserProfileSchema, type UserProfile } from '@receipt-tracker/contracts'
+import {
+  ReceiptProcessingResponseSchema,
+  UserProfileSchema,
+  type ReceiptProcessingResponse,
+  type UserProfile,
+} from '@receipt-tracker/contracts'
 import { parseApiErrorBody } from '~/utils/apiErrors'
 
 type ApiRequestOptions = RequestInit & {
@@ -89,9 +94,6 @@ export function useApi() {
       return UserProfileSchema.parse(profile)
     },
     async uploadReceipt(formData: FormData, idempotencyKey: string) {
-      const config = useRuntimeConfig()
-      const apiBaseUrl = config.public.apiBaseUrl as string
-
       const response = await fetch(`${apiBaseUrl}/receipts/upload`, {
         method: 'POST',
         body: formData,
@@ -118,6 +120,10 @@ export function useApi() {
         processingStatus: string
         duplicate: boolean
       }
+    },
+    async getReceiptProcessing(receiptId: string): Promise<ReceiptProcessingResponse> {
+      const payload = await request<unknown>(`/receipts/${receiptId}/processing`)
+      return ReceiptProcessingResponseSchema.parse(payload)
     },
   }
 }

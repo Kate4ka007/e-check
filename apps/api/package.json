@@ -10,16 +10,19 @@
     "postinstall": "prisma generate",
     "predev": "node -e \"require('fs').rmSync('tsconfig.build.tsbuildinfo',{force:true})\" && pnpm --filter @receipt-tracker/contracts build && prisma generate",
     "dev": "volta run --node 22.17.1 -- nest start --watch",
+    "dev:worker": "volta run --node 22.17.1 -- tsx src/worker.ts",
     "prebuild": "node -e \"require('fs').rmSync('tsconfig.build.tsbuildinfo',{force:true})\" && prisma generate",
     "build": "nest build",
     "prestart": "pnpm --filter @receipt-tracker/contracts build && nest build",
     "start": "node dist/main.js",
+    "worker": "volta run --node 22.17.1 -- node dist/worker.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "volta run --node 22.17.1 -- vitest run",
     "test:integration": "volta run --node 22.17.1 -- vitest run --config vitest.integration.config.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "reprocess:bad-models": "tsx src/scripts/reprocess-receipts.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1123.0",
@@ -40,6 +43,7 @@
     "multer": "^2.3.0",
     "nestjs-pino": "^4.4.0",
     "nestjs-zod": "^5.0.1",
+    "openai": "^6.9.0",
     "pino": "^9.9.5",
     "pino-http": "^10.5.0",
     "reflect-metadata": "^0.2.2",

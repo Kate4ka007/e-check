@@ -14,6 +14,7 @@
     "dev": "pnpm --parallel --filter @receipt-tracker/web --filter @receipt-tracker/api dev",
     "dev:web": "pnpm --filter @receipt-tracker/web dev",
     "dev:api": "pnpm --filter @receipt-tracker/api dev",
+    "dev:worker": "pnpm --filter @receipt-tracker/api dev:worker",
     "build": "pnpm --filter @receipt-tracker/contracts build && pnpm --filter @receipt-tracker/web build && pnpm --filter @receipt-tracker/api build",
     "db:generate": "pnpm --filter @receipt-tracker/api db:generate",
     "db:migrate": "pnpm --filter @receipt-tracker/api db:migrate",
