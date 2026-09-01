@@ -122,6 +122,7 @@ export const ru = {
   'processing.stage.EXTRACTING': 'Извлекаем данные…',
   'processing.stage.NORMALIZING': 'Проверяем результат…',
   'processing.failedHint': 'Не удалось распознать чек. Можно попробовать ещё раз или ввести данные вручную.',
+  'processing.retry': 'Повторить распознавание',
   'processing.timeout': 'Обработка занимает больше обычного. Чек появится в списке, когда распознавание завершится.',
   'processing.alreadyRunning': 'Чек уже обрабатывается',
 

@@ -16,10 +16,40 @@ const nullish = <T extends z.ZodTypeAny>(inner: T) =>
     return text === '' || text.toLowerCase() === 'null' ? null : text
   }, inner)
 
+const QuantityString = z.string().regex(/^\d+([.,]\d{1,3})?$/)
+
+/** Модель часто возвращает "1.0000", число или "1 шт" — нормализуем до формата схемы. */
+function normalizeQuantity(value: unknown): unknown {
+  if (value === null || value === undefined) return null
+
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value) || value < 0) return null
+    return formatQuantity(value)
+  }
+
+  if (typeof value !== 'string') return value
+
+  const text = value.trim()
+  if (text === '' || text.toLowerCase() === 'null') return null
+
+  const match = text.match(/(\d+(?:[.,]\d+)?)/)
+  if (!match) return text
+
+  const parsed = Number(match[1]!.replace(',', '.'))
+  if (!Number.isFinite(parsed) || parsed < 0) return text
+
+  return formatQuantity(parsed)
+}
+
+function formatQuantity(value: number): string {
+  const trimmed = value.toFixed(3).replace(/\.?0+$/, '')
+  return trimmed === '' ? '0' : trimmed
+}
+
 export const ParsedItemSchema = z.object({
   name: z.string().min(1).max(300),
   lineType: LineTypeSchema,
-  quantity: nullish(z.string().regex(/^\d+([.,]\d{1,3})?$/).nullable()),
+  quantity: z.preprocess(normalizeQuantity, QuantityString.nullable()),
   unit: ItemUnitSchema,
   unitPrice: nullish(MoneyString.nullable()),
   totalPrice: MoneyString,

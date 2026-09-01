@@ -15,6 +15,7 @@ const processing = ref(false)
 const processingStatus = ref<ReceiptProcessingResponse | null>(null)
 const errorMessage = ref<string | null>(null)
 const successReceiptId = ref<string | null>(null)
+const retrying = ref(false)
 
 function onFileSelected(event: Event) {
   const input = event.target as HTMLInputElement
@@ -61,7 +62,6 @@ async function waitForProcessing(receiptId: string) {
     processingStatus.value = result
 
     if (result.processingStatus === 'FAILED') {
-      errorMessage.value = t('processing.failedHint')
       return
     }
 
@@ -72,6 +72,24 @@ async function waitForProcessing(receiptId: string) {
     errorMessage.value = t('processing.timeout')
   } finally {
     processing.value = false
+  }
+}
+
+async function retryProcessing() {
+  if (!successReceiptId.value || retrying.value || processing.value) return
+
+  retrying.value = true
+  errorMessage.value = null
+
+  try {
+    await api.reprocessReceipt(successReceiptId.value)
+    await waitForProcessing(successReceiptId.value)
+  } catch (error) {
+    const apiError = error as ApiClientError
+    const code = apiError.body?.code
+    errorMessage.value = code ? t(messageKeyForError(code)) : t('upload.error.internal')
+  } finally {
+    retrying.value = false
   }
 }
 
@@ -217,7 +235,27 @@ onBeforeUnmount(() => {
       </UButton>
     </div>
 
-    <div v-else class="flex gap-2">
+    <div v-else class="flex flex-wrap gap-2">
+      <UButton
+        v-if="processingStatus?.processingStatus === 'FAILED'"
+        color="primary"
+        variant="soft"
+        icon="i-lucide-refresh-cw"
+        :loading="retrying || processing"
+        :disabled="retrying || processing"
+        @click="retryProcessing"
+      >
+        {{ t('processing.retry') }}
+      </UButton>
+      <UButton
+        v-if="processingStatus?.processingStatus !== 'COMPLETED'"
+        :to="`/receipts/${successReceiptId}`"
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-pencil"
+      >
+        {{ t('upload.openReceipt') }}
+      </UButton>
       <UButton
         v-if="processingStatus?.processingStatus === 'COMPLETED'"
         :to="`/receipts/${successReceiptId}`"
