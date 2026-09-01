@@ -194,6 +194,22 @@ worker обработал                     → COMPLETED, данные сох
 Провайдер в сквозных тестах всегда замокан. Реальный сделал бы тесты
 медленными, платными и недетерминированными.
 
+### Запуск локально
+
+```bash
+docker compose up -d          # postgres, redis, minio
+pnpm db:migrate
+pnpm test:e2e:install         # один раз: браузер Chromium
+pnpm test:e2e
+```
+
+Playwright поднимает API (`EXTRACTOR_KIND=mock`), worker и web-сервер.
+Нужен Node 22. Если серверы уже запущены с `pnpm dev`, можно переиспользовать
+их (`reuseExistingServer`), но worker и API должны работать с mock-экстрактором.
+
+Сценарий: `e2e/main-flow.spec.ts` — регистрация, загрузка, правка позиции,
+сохранение, подтверждение, чек в списке.
+
 ---
 
 ## 6. Харнесс точности

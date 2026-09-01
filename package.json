@@ -22,6 +22,9 @@
     "db:seed": "pnpm --filter @receipt-tracker/api db:seed",
     "test": "pnpm --filter @receipt-tracker/contracts test && pnpm --filter @receipt-tracker/api test",
     "test:integration": "pnpm --filter @receipt-tracker/api test:integration",
+    "test:e2e": "volta run --node 22.17.1 -- playwright test",
+    "test:e2e:ui": "volta run --node 22.17.1 -- playwright test --ui",
+    "test:e2e:install": "playwright install chromium",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -29,6 +32,8 @@
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^1.17.0",
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.18.1",
     "eslint": "^9.39.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"

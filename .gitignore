@@ -43,3 +43,4 @@ apps/web/public/.local/
 
 test-results/
 playwright-report/
+e2e/.worker.pid
