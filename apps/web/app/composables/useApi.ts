@@ -165,6 +165,7 @@ export function useApi() {
     async reprocessReceipt(receiptId: string): Promise<ReceiptReprocessResponse> {
       return request<ReceiptReprocessResponse>(`/receipts/${receiptId}/reprocess`, {
         method: 'POST',
+        body: '{}',
       })
     },
   }

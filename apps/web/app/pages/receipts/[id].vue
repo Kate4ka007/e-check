@@ -21,6 +21,7 @@ import { inputUi, selectUi, textareaUi } from '~/utils/formUi'
 const route = useRoute()
 const { t } = useT()
 const api = useApi()
+const { pollUntilDone, statusLabel: processingStatusLabel } = useReceiptProcessing()
 
 const id = computed(() => String(route.params.id))
 const { data: loaded, status } = useReceipt(id)
@@ -103,6 +104,7 @@ const showImage = ref(true)
 
 const saveState = ref<'idle' | 'saving' | 'saved'>('idle')
 const confirmState = ref<'idle' | 'confirming' | 'confirmed'>('idle')
+const reprocessState = ref<'idle' | 'running'>('idle')
 const errorMessage = ref<string | null>(null)
 const confirmWarnings = ref<Array<{ code: string; differenceMinor: number }>>([])
 
@@ -111,7 +113,46 @@ watch(id, () => {
   confirmWarnings.value = []
   saveState.value = 'idle'
   confirmState.value = 'idle'
+  reprocessState.value = 'idle'
 })
+
+async function reloadReceipt() {
+  const refreshed = await api.getReceipt(id.value)
+  draft.value = structuredClone(refreshed)
+  loaded.value = refreshed
+}
+
+async function reprocess() {
+  if (!draft.value || reprocessState.value === 'running') return
+  if (draft.value.entryMode !== 'SCAN') return
+
+  reprocessState.value = 'running'
+  errorMessage.value = null
+
+  try {
+    await api.reprocessReceipt(id.value)
+    const result = await pollUntilDone(id.value)
+
+    if (result.processingStatus === 'COMPLETED') {
+      await reloadReceipt()
+      return
+    }
+
+    if (result.processingStatus === 'FAILED') {
+      errorMessage.value = t('processing.failedHint')
+      if (draft.value) {
+        draft.value.processingStatus = 'FAILED'
+        loaded.value = draft.value
+      }
+    }
+  } catch (error) {
+    const apiError = error as ApiClientError
+    const code = apiError.body?.code
+    errorMessage.value = code ? t(messageKeyForError(code)) : t('processing.failedHint')
+  } finally {
+    reprocessState.value = 'idle'
+  }
+}
 
 function toPatchPayload(draft: ReceiptDetail): ReceiptPatch {
   const items = draft.items
@@ -177,9 +218,7 @@ async function confirm() {
     const result = await api.confirmReceipt(id.value)
     confirmWarnings.value = result.warnings
 
-    const refreshed = await api.getReceipt(id.value)
-    draft.value = structuredClone(refreshed)
-    loaded.value = refreshed
+    await reloadReceipt()
     errorMessage.value = null
     confirmState.value = 'confirmed'
     setTimeout(() => (confirmState.value = 'idle'), 1500)
@@ -242,6 +281,16 @@ const unknownCategories = computed(() => {
           />
         </div>
       </header>
+
+      <UAlert
+        v-if="draft.processingStatus === 'FAILED' && draft.entryMode === 'SCAN'"
+        class="mb-4"
+        color="warning"
+        variant="soft"
+        icon="i-lucide-scan-text"
+        :title="processingStatusLabel('FAILED')"
+        :description="t('processing.failedHint')"
+      />
 
       <UAlert
         v-if="errorMessage"
@@ -372,6 +421,17 @@ const unknownCategories = computed(() => {
             </div>
 
             <div class="flex items-center gap-2">
+              <UButton
+                v-if="draft.processingStatus === 'FAILED' && draft.entryMode === 'SCAN'"
+                color="primary"
+                variant="soft"
+                size="sm"
+                icon="i-lucide-refresh-cw"
+                :loading="reprocessState === 'running'"
+                :disabled="reprocessState === 'running' || confirmState === 'confirming'"
+                :label="t('processing.retry')"
+                @click="reprocess"
+              />
               <UButton
                 v-if="isDirty"
                 color="neutral"
