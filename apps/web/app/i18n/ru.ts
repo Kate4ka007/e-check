@@ -130,17 +130,55 @@ export const ru = {
   'common.cancel': 'Отмена',
   'common.of': 'из',
 
+  'tour.next': 'Далее',
+  'tour.back': 'Назад',
+  'tour.finish': 'Понятно',
+
   'auth.login.title': 'Вход',
   'auth.login.subtitle': 'Войдите, чтобы продолжить работу с чеками.',
   'auth.login.action': 'Войти',
   'auth.login.noAccount': 'Нет аккаунта?',
   'auth.login.registerLink': 'Зарегистрироваться',
+  'auth.login.demoLink': 'Посмотреть демо без регистрации',
+
+  'demo.title': 'Демо: проверка чека',
+  'demo.subtitle':
+    'Попробуйте отредактировать распознанный чек. Это учебный пример — данные не сохраняются.',
+  'demo.banner': 'Демо-режим',
+  'demo.action.register': 'Зарегистрироваться',
+  'demo.notice.save': 'В демо правки не сохраняются. Зарегистрируйтесь, чтобы вести учёт чеков.',
+  'demo.notice.confirm':
+    'Подтверждение доступно после регистрации — тогда чек попадёт в ваш список расходов.',
+
+  'demo.tour.start': 'Обучение',
+  'demo.tour.welcome.title': 'Добро пожаловать',
+  'demo.tour.welcome.description':
+    'Краткий тур покажет, как проверять чек после распознавания: что можно править и зачем нужны кнопки внизу.',
+  'demo.tour.image.title': 'Фото чека',
+  'demo.tour.image.description':
+    'Слева — изображение чека. На телефоне его можно свернуть, чтобы освободить место для полей.',
+  'demo.tour.fields.title': 'Шапка чека',
+  'demo.tour.fields.description':
+    'Магазин, дата, валюта и итог редактируются свободно. Распознавание — черновик, решение всегда за вами.',
+  'demo.tour.sumCheck.title': 'Сверка суммы',
+  'demo.tour.sumCheck.description':
+    'Сумма позиций сравнивается с итогом. Расхождение — повод проверить, а не запрет на сохранение.',
+  'demo.tour.items.title': 'Позиции',
+  'demo.tour.items.description':
+    'Можно менять названия, количество, цены и категории. Жёлтая иконка — модель не уверена в позиции.',
+  'demo.tour.actions.title': 'Сохранить и подтвердить',
+  'demo.tour.actions.description':
+    '«Сохранить» фиксирует правки черновика. «Подтвердить» — когда данные верны и чек готов к учёту.',
+  'demo.tour.register.title': 'Готовы начать?',
+  'demo.tour.register.description':
+    'Зарегистрируйтесь, загрузите свой чек и пройдите тот же сценарий с сохранением данных.',
 
   'auth.register.title': 'Регистрация',
   'auth.register.subtitle': 'Создайте аккаунт для учёта расходов.',
   'auth.register.action': 'Создать аккаунт',
   'auth.register.hasAccount': 'Уже есть аккаунт?',
   'auth.register.loginLink': 'Войти',
+  'auth.register.demoLink': 'Сначала посмотреть демо',
   'auth.register.timezoneHint': 'Часовой пояс: {timezone}',
 
   'auth.field.email': 'Email',

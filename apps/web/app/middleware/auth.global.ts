@@ -1,4 +1,4 @@
-const guestRoutes = new Set(['/login', '/register'])
+const guestRoutes = new Set(['/login', '/register', '/demo'])
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const auth = useAuthStore()

@@ -64,6 +64,11 @@ async function submit() {
             {{ t('auth.login.registerLink') }}
           </NuxtLink>
         </p>
+        <p class="mt-2 text-sm text-(--ui-text-muted)">
+          <NuxtLink to="/demo" class="text-(--ui-primary) hover:underline">
+            {{ t('auth.login.demoLink') }}
+          </NuxtLink>
+        </p>
       </template>
     </UCard>
   </div>
