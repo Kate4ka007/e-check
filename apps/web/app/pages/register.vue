@@ -13,7 +13,7 @@ const pending = ref(false)
 
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((code) => ({
+const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'UAH', 'GBP', 'CZK'].map((code) => ({
   label: code,
   value: code,
 }))

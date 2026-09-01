@@ -129,7 +129,7 @@ const isDirty = computed(() => {
   )
 })
 
-const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'GBP', 'CZK'].map((code) => ({
+const currencyOptions = ['BYN', 'EUR', 'USD', 'PLN', 'RUB', 'UAH', 'GBP', 'CZK'].map((code) => ({
   label: code,
   value: code,
 }))
