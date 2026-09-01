@@ -147,36 +147,173 @@ NUXT_PUBLIC_SENTRY_DSN=
 сюрпризом на последнем месяце — обычно именно там обнаруживается,
 что переменные не заданы, миграции не применяются, а домен не настроен.
 
-### Схема
+### Выбранная схема (free tier, без карты где возможно)
 
-Фронтенд — статика (`nuxt generate`) на любой CDN-хостинг.
-API и worker — два контейнера из одного образа с разными командами запуска.
-База, Redis и хранилище — управляемые сервисы.
+| Компонент | Площадка | Карта |
+|---|---|---|
+| Фронтенд | **Vercel** Hobby | не нужна |
+| API + worker | **Render** Free Web Service (один контейнер) | не нужна |
+| PostgreSQL | **Neon** | не нужна |
+| Redis | **Upstash** | не нужна |
+| Файлы чеков | **Cloudflare R2** или **Supabase Storage** | R2: PayPal/карта; Supabase: обычно без карты |
 
-Конкретные площадки выбираются в M0 из бесплатных тарифов и фиксируются
-здесь же по факту.
+Отдельный Background Worker на Render free **недоступен** (от ~$7/мес).
+На бесплатном тарифе API и worker запускаются вместе через
+`apps/api/scripts/start-production.cjs` (см. `Dockerfile`, `render.yaml`).
+
+Render Postgres на free живёт 30 дней — используй Neon, не Render DB.
+
+```text
+Браузер
+  → Vercel (Nuxt SPA)
+      → /api/* проксируется на Render (vercel.json)
+  → Render (API + worker в Docker)
+      → Neon, Upstash, R2/Supabase
+```
+
+Cookies: фронт и API на разных доменах (`*.vercel.app` и `*.onrender.com`).
+Прокси через Vercel держит запросы на одном origin — авторизация работает
+без своего домена. `NUXT_PUBLIC_API_BASE_URL=/api/v1` (относительный путь).
+
+### Файлы деплоя в репозитории
+
+| Файл | Назначение |
+|---|---|
+| `Dockerfile` | образ API + worker |
+| `render.yaml` | Blueprint для Render |
+| `apps/web/vercel.json` | прокси `/api/*` → Render |
+| `apps/api/scripts/start-production.cjs` | миграции + запуск API и worker |
+
+Локально production-режим API+worker:
+
+```bash
+pnpm build
+cd apps/api && pnpm start:production
+```
+
+### Пошаговый деплой
+
+#### 0. Репозиторий на GitHub
+
+Vercel и Render деплоят из git. Код должен быть в публичном или приватном
+репозитории на GitHub.
+
+#### 1. Neon (PostgreSQL)
+
+1. [neon.tech](https://neon.tech) → регистрация (без карты).
+2. Create project, регион ближе к EU (Frankfurt).
+3. Скопировать **pooled connection string**:
+   `postgresql://user:pass@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require`
+
+#### 2. Upstash (Redis)
+
+1. [upstash.com](https://upstash.com) → регистрация (без карты).
+2. Create Redis database, регион EU.
+3. Скопировать **Redis URL**:
+   `rediss://default:xxx@xxx.upstash.io:6379`
+
+#### 3. Хранилище файлов
+
+**Cloudflare R2** (нужен PayPal или карта для активации, в free tier не списывает):
+
+1. R2 → bucket `receipts`.
+2. S3 API credentials.
+3. `S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, `S3_FORCE_PATH_STYLE=false`.
+
+**Supabase Storage** (альтернатива без карты, ~1 GB free):
+[S3-compatible endpoint](https://supabase.com/docs/guides/storage/s3/compatibility).
+
+#### 4. Render (API + worker)
+
+1. [render.com](https://render.com) → Sign up через GitHub (без карты).
+2. **New → Blueprint** → репозиторий `e-check` → Render прочитает `render.yaml`.
+   Либо **New → Web Service** вручную: Runtime **Docker**, Dockerfile `./Dockerfile`, Plan **Free**, Region **Frankfurt**.
+3. Задать секреты (`sync: false` в Blueprint):
+
+```bash
+APP_URL=https://<project>.vercel.app          # после деплоя Vercel, см. шаг 5
+DATABASE_URL=postgresql://...neon...
+REDIS_URL=rediss://...upstash...
+JWT_ACCESS_SECRET=<случайная строка 32+ символов>
+S3_ENDPOINT=...
+S3_BUCKET=receipts
+S3_ACCESS_KEY=...
+S3_SECRET_KEY=...
+EXTRACTOR_API_KEY=sk-or-v1-...
+```
+
+`PORT` Render задаёт сам — в env не указывать.
+
+4. Deploy → проверка (первый запрос после простоя может занять 30–60 с):
+
+```text
+https://e-check-api.onrender.com/api/v1/health
+```
+
+5. Seed (один раз), локально с Neon `DATABASE_URL`:
+
+```bash
+pnpm db:seed
+```
+
+Если имя сервиса на Render не `e-check-api`, обнови `destination` в
+`apps/web/vercel.json`.
+
+#### 5. Vercel (фронтенд)
+
+1. [vercel.com](https://vercel.com) → Import GitHub repo.
+2. Настройки проекта:
+
+| Поле | Значение |
+|---|---|
+| Framework Preset | Nuxt.js |
+| Root Directory | `apps/web` |
+| Install Command | `cd ../.. && pnpm install` |
+| Build Command | `cd ../.. && pnpm --filter @receipt-tracker/contracts build && pnpm --filter @receipt-tracker/web build` |
+
+3. Environment Variables:
+
+```bash
+NUXT_PUBLIC_API_BASE_URL=/api/v1
+```
+
+4. Deploy → URL вида `https://e-check-xxx.vercel.app`.
+
+5. В Render обновить `APP_URL` на этот URL → **Manual Deploy** API.
+
+#### 6. Проверка
+
+1. Открыть URL Vercel.
+2. Войти (если делал seed: пароль из `SEED_DEV_PASSWORD` в local `.env`).
+3. Загрузить чек → дождаться распознавания.
+4. Проверить и подтвердить.
+
+### Ограничения free tier
+
+| Что | Эффект |
+|---|---|
+| Render засыпает через ~15 мин простоя | холодный старт 30–60 с; worker тоже спит |
+| Vision 30–120 с | длинные задачи могут упираться в таймауты платформы |
+| Upstash | 500K команд/мес — для личного использования достаточно |
+| Neon | 0.5 GB — достаточно для начала |
 
 ### Порядок выкладки
 
 ```text
-1. миграции базы
-2. API
-3. worker
-4. фронтенд
+1. Neon + Upstash + хранилище
+2. Render (API + worker; миграции в start-production)
+3. Vercel (фронтенд)
+4. APP_URL на Render = URL Vercel
 ```
 
-Миграции первыми, потому что новый код может от них зависеть. Обратная
-совместимость миграций из [DATA_MODEL.md](DATA_MODEL.md) делает этот
-порядок безопасным: старый код продолжает работать с новой схемой.
-
-Фронтенд последним, чтобы интерфейс не обратился к эндпоинту, которого
-ещё нет.
+Миграции выполняются при каждом старте контейнера (`prisma migrate deploy`).
+Фронтенд последним, чтобы не обращаться к API до его готовности.
 
 ### Откат
 
-Фронтенд — возврат к предыдущей сборке. API и worker — предыдущий образ.
-База назад не откатывается: миграции пишутся так, чтобы предыдущая версия
-кода работала с новой схемой.
+Фронтенд — возврат к предыдущей сборке в Vercel. API — предыдущий образ
+в Render. База назад не откатывается: миграции пишутся так, чтобы предыдущая
+версия кода работала с новой схемой.
 
 ---
 

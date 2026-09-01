@@ -15,6 +15,7 @@
     "build": "nest build",
     "prestart": "pnpm --filter @receipt-tracker/contracts build && nest build",
     "start": "node dist/main.js",
+    "start:production": "node scripts/start-production.cjs",
     "worker": "volta run --node 22.17.1 -- node dist/worker.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "volta run --node 22.17.1 -- vitest run",

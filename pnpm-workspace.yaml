@@ -7,8 +7,11 @@ packages:
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
   - better-sqlite3
   - esbuild
+  - prisma
   - sharp
   - unrs-resolver
   - vue-demi
