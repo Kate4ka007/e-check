@@ -16,7 +16,7 @@
 | [0005](0005-object-storage.md)                   | Изображения в object storage                         | принято |
 | [0006](0006-money-minor-units.md)                | Деньги в минорных единицах                           | принято |
 | [0007](0007-analytics-source-of-truth.md)        | `receipt.total` — источник истины для аналитики      | принято |
-| [0008](0008-spa-not-ssr.md)                      | Nuxt в режиме SPA                                    | принято |
+| [0008](0008-spa-not-ssr.md)                      | Nuxt в режиме SPA                                    | заменено ADR-0016 |
 | [0009](0009-zod-first-contracts.md)              | Zod вместо class-validator                           | принято |
 | [0010](0010-deterministic-confidence.md)         | Уверенность вычисляется, а не запрашивается у модели | принято |
 | [0011](0011-free-tier-first.md)                  | Бесплатные модели на этапе проверки гипотезы         | принято |
@@ -24,6 +24,7 @@
 | [0013](0013-dedup-by-file-hash.md)               | Дедупликация по хешу файла                           | принято |
 | [0014](0014-manual-entry-fallback.md)            | Ручной ввод при сбое распознавания                   | принято |
 | [0015](0015-vision-model-and-call-parameters.md) | Модель распознавания и параметры вызова              | принято |
+| [0016](0016-hybrid-ssr-public-pages.md)          | Гибридный рендер: HTML для `/` и `/demo`             | принято |
 
 ## Формат
 

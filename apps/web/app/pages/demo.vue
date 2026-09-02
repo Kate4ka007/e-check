@@ -18,6 +18,15 @@ const DEMO_TOUR_KEY = 'e-check:demo-tour-seen'
 
 const { t } = useT()
 
+useSeoMeta({
+  title: t('demo.seo.title'),
+  description: t('demo.seo.description'),
+  ogTitle: t('demo.seo.title'),
+  ogDescription: t('demo.seo.description'),
+  ogType: 'website',
+  twitterCard: 'summary',
+})
+
 const original = createDemoReceipt()
 const draft = ref<ReceiptDetail>(structuredClone(original))
 

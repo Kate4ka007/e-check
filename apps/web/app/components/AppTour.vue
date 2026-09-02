@@ -120,6 +120,7 @@ function scheduleLayout() {
 }
 
 watch(open, (value) => {
+  if (!import.meta.client) return
   if (value) {
     current.value = props.initialStep
     scrollTargetIntoView()
@@ -133,6 +134,7 @@ watch(open, (value) => {
 })
 
 watch(current, () => {
+  if (!import.meta.client) return
   scrollTargetIntoView()
   scheduleLayout()
 })

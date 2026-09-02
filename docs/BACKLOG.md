@@ -193,7 +193,7 @@
 ### Фронтенд
 
 ```text
-[x] Nuxt с ssr: false
+[x] Nuxt: HTML для `/` и `/demo`, SPA за сессией
 [x] Nuxt UI, базовые токены SCSS
 [x] Layout: шапка, навигация, контейнер
 [x] API-клиент: credentials, обработка ошибок, requestId, прерывание запроса

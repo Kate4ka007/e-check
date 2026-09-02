@@ -125,9 +125,13 @@ LOG_LEVEL=debug
 ```bash
 NUXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
 NUXT_PUBLIC_SENTRY_DSN=
+NUXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-Только эти две. Всё остальное — на бэкенде. Переменные с префиксом
+`NUXT_PUBLIC_SITE_URL` — абсолютный origin для `sitemap.xml`. В production
+на Vercel ставьте канонический URL сайта; если не задан, берётся `VERCEL_URL`.
+
+Только эти. Всё остальное — на бэкенде. Переменные с префиксом
 `NUXT_PUBLIC_` попадают в бандл и видны всем; ключи провайдеров туда
 попасть не должны никогда.
 
@@ -165,7 +169,7 @@ Render Postgres на free живёт 30 дней — используй Neon, н
 
 ```text
 Браузер
-  → Vercel (Nuxt SPA)
+  → Vercel (Nuxt: HTML для `/` и `/demo`, SPA за сессией)
       → /api/* проксируется на Render (vercel.json)
   → Render (API + worker в Docker)
       → Neon, Upstash, R2/Supabase
@@ -284,9 +288,10 @@ pnpm db:seed
 
 ```bash
 NUXT_PUBLIC_API_BASE_URL=/api/v1
+NUXT_PUBLIC_SITE_URL=https://scan-cheki.vercel.app
 ```
 
-4. Deploy → URL вида `https://e-check-xxx.vercel.app`.
+4. Deploy → URL вида `https://scan-cheki.vercel.app`.
 
 5. В Render обновить `APP_URL` на этот URL → **Manual Deploy** API.
 

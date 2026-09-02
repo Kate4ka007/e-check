@@ -3,13 +3,23 @@ definePageMeta({
   layout: false,
 })
 
+const { t } = useT()
 const colorMode = useColorMode()
 
-if (colorMode.preference !== 'light') {
-  colorMode.preference = 'dark'
-}
+onMounted(() => {
+  if (colorMode.preference !== 'light') {
+    colorMode.preference = 'dark'
+  }
+})
 
-const { t } = useT()
+useSeoMeta({
+  title: t('landing.seo.title'),
+  description: t('landing.seo.description'),
+  ogTitle: t('landing.seo.title'),
+  ogDescription: t('landing.seo.description'),
+  ogType: 'website',
+  twitterCard: 'summary',
+})
 
 const features = [
   {

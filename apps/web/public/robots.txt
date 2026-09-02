@@ -1,0 +1,4 @@
+# Индексация закрыта. Когда откроем: убрать Disallow, закрыть /login,
+# /register и /receipts, добавить строку Sitemap с абсолютным URL.
+User-agent: *
+Disallow: /
