@@ -13,21 +13,6 @@ async function main() {
 
   await prisma.$connect()
   await ensureSystemCategories(prisma)
-
-  // #region agent log
-  console.error(
-    `[debug] ${JSON.stringify({
-      sessionId: 'd2849a',
-      runId: 'pre-fix',
-      hypothesisId: 'H1',
-      location: 'worker.ts:before-ensureBucket',
-      message: 'worker startup before S3 ensureBucket',
-      data: { endpointHost: new URL(env.S3_ENDPOINT).host },
-      timestamp: Date.now(),
-    })}`,
-  )
-  // #endregion
-
   await storage.ensureBucket()
 
   const worker = new Worker<ReceiptProcessingJobData>(

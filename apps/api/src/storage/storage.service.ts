@@ -14,53 +14,15 @@ import { isManagedObjectStorage, resolveS3ForcePathStyle } from './s3-client-opt
 
 const SIGNED_URL_TTL_SECONDS = 15 * 60
 
-function agentLog(
-  location: string,
-  message: string,
-  hypothesisId: string,
-  data: Record<string, unknown>,
-) {
-  const payload = {
-    sessionId: 'd2849a',
-    runId: 'pre-fix',
-    hypothesisId,
-    location,
-    message,
-    data,
-    timestamp: Date.now(),
-  }
-
-  // Visible in Render logs when local ingest is unavailable.
-  console.error(`[debug] ${JSON.stringify(payload)}`)
-
-  // #region agent log
-  fetch('http://127.0.0.1:7444/ingest/630473c8-0625-49c0-bf96-70c190742b5f', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd2849a' },
-    body: JSON.stringify(payload),
-  }).catch(() => {})
-  // #endregion
-}
-
 @Injectable()
 export class StorageService implements OnModuleInit, OnModuleDestroy {
   private readonly client: S3Client
-  private readonly forcePathStyle: boolean
 
   constructor(@Inject(ENV) private readonly env: Env) {
-    this.forcePathStyle = resolveS3ForcePathStyle(env)
-
-    agentLog('storage.service.ts:constructor', 'S3 client config', 'H1', {
-      endpointHost: new URL(env.S3_ENDPOINT).host,
-      forcePathStyle: this.forcePathStyle,
-      envForcePathStyle: env.S3_FORCE_PATH_STYLE,
-      managedStorage: isManagedObjectStorage(env.S3_ENDPOINT),
-    })
-
     this.client = new S3Client({
       region: env.S3_REGION,
       endpoint: env.S3_ENDPOINT,
-      forcePathStyle: this.forcePathStyle,
+      forcePathStyle: resolveS3ForcePathStyle(env),
       credentials: {
         accessKeyId: env.S3_ACCESS_KEY,
         secretAccessKey: env.S3_SECRET_KEY,
@@ -73,24 +35,9 @@ export class StorageService implements OnModuleInit, OnModuleDestroy {
   }
 
   async ensureBucket(): Promise<void> {
-    agentLog('storage.service.ts:ensureBucket', 'HeadBucket start', 'H1', {
-      bucket: this.env.S3_BUCKET,
-      forcePathStyle: this.forcePathStyle,
-    })
-
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: this.env.S3_BUCKET }))
-      agentLog('storage.service.ts:ensureBucket', 'HeadBucket ok', 'H1', {
-        bucket: this.env.S3_BUCKET,
-      })
     } catch (error) {
-      agentLog('storage.service.ts:ensureBucket', 'HeadBucket failed', 'H1', {
-        bucket: this.env.S3_BUCKET,
-        errorName: error instanceof Error ? error.name : 'unknown',
-        errorMessage: error instanceof Error ? error.message : String(error),
-        hasAwsMetadata: typeof error === 'object' && error !== null && '$metadata' in error,
-      })
-
       if (isManagedObjectStorage(this.env.S3_ENDPOINT)) {
         throw error
       }
