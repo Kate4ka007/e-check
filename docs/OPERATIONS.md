@@ -223,6 +223,15 @@ Vercel и Render деплоят из git. Код должен быть в пуб
 **Supabase Storage** (альтернатива без карты, ~1 GB free):
 [S3-compatible endpoint](https://supabase.com/docs/guides/storage/s3/compatibility).
 
+```bash
+S3_ENDPOINT=https://<project_ref>.storage.supabase.co/storage/v1/s3
+S3_REGION=<регион из Supabase Dashboard>
+S3_FORCE_PATH_STYLE=true   # обязательно; без этого TLS handshake падает с EPROTO
+```
+
+Для R2 оставь `S3_FORCE_PATH_STYLE=false`. Если endpoint содержит `supabase.co`,
+API принудительно включает path style даже при `false` в env.
+
 #### 4. Render (API + worker)
 
 1. [render.com](https://render.com) → Sign up через GitHub (без карты).

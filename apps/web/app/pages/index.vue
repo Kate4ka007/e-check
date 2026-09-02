@@ -4,12 +4,10 @@ definePageMeta({
 })
 
 const colorMode = useColorMode()
-const previousColorMode = colorMode.preference
-colorMode.preference = 'dark'
 
-onBeforeUnmount(() => {
-  colorMode.preference = previousColorMode
-})
+if (colorMode.preference !== 'light') {
+  colorMode.preference = 'dark'
+}
 
 const { t } = useT()
 
