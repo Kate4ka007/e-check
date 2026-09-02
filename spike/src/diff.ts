@@ -97,7 +97,9 @@ async function main() {
       continue
     }
 
-    runs.sort((a, b) => (b.data as ParsedReceipt).items.length - (a.data as ParsedReceipt).items.length)
+    runs.sort(
+      (a, b) => (b.data as ParsedReceipt).items.length - (a.data as ParsedReceipt).items.length,
+    )
     const reference = runs[0]!
     const refData = reference.data as ParsedReceipt
 
@@ -135,7 +137,8 @@ async function main() {
           if (!m.priceCorrect) parts.push(`цена ${m.expected.totalPrice} ≠ ${m.actual.totalPrice}`)
           if (!m.quantityCorrect) parts.push(`кол-во ${m.expected.quantity} ≠ ${m.actual.quantity}`)
           if (!m.lineTypeCorrect) parts.push(`тип ${m.expected.lineType} ≠ ${m.actual.lineType}`)
-          if (!m.categoryCorrect) parts.push(`кат. ${m.expected.categorySlug} ≠ ${m.actual.categorySlug}`)
+          if (!m.categoryCorrect)
+            parts.push(`кат. ${m.expected.categorySlug} ≠ ${m.actual.categorySlug}`)
           out(`       ${m.expected.name}: ${parts.join(', ')}`)
         }
       }

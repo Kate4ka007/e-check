@@ -72,12 +72,7 @@ async function submit() {
           {{ t('auth.register.timezoneHint', { timezone }) }}
         </p>
 
-        <UAlert
-          v-if="auth.errorMessage"
-          color="error"
-          variant="soft"
-          :title="auth.errorMessage"
-        />
+        <UAlert v-if="auth.errorMessage" color="error" variant="soft" :title="auth.errorMessage" />
 
         <UButton type="submit" block :loading="pending" :label="t('auth.register.action')" />
       </form>

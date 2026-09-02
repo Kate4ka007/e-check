@@ -17,9 +17,7 @@ export interface CallResult {
 
 export class AllModelsFailedError extends Error {
   constructor(readonly failures: { model: string; reason: string }[]) {
-    super(
-      `All models failed:\n${failures.map((f) => `  ${f.model}: ${f.reason}`).join('\n')}`,
-    )
+    super(`All models failed:\n${failures.map((f) => `  ${f.model}: ${f.reason}`).join('\n')}`)
     this.name = 'AllModelsFailedError'
   }
 }
@@ -163,9 +161,7 @@ export async function callWithFallback(
           throw new EmptyResponseError(choice?.finish_reason ?? 'unknown', reasoning.length)
         }
 
-        const usage = completion.usage as
-          | (OpenAI.CompletionUsage & { cost?: number })
-          | undefined
+        const usage = completion.usage as (OpenAI.CompletionUsage & { cost?: number }) | undefined
 
         return {
           content,

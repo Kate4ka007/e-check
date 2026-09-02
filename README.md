@@ -16,17 +16,17 @@
 
 ## Документация
 
-| Документ | О чём |
-|---|---|
-| [PROJECT_PLAN.md](docs/PROJECT_PLAN.md) | Главный документ: цели, scope, майлстоуны, принципы |
-| [BACKLOG.md](docs/BACKLOG.md) | Упорядоченный список задач M0–M1 |
-| [DATA_MODEL.md](docs/DATA_MODEL.md) | Схема БД, модель денег, состояния чека, индексы |
-| [PROCESSING_PIPELINE.md](docs/PROCESSING_PIPELINE.md) | Распознавание: extractor, промпт, confidence, ретраи |
-| [API_SPEC.md](docs/API_SPEC.md) | Эндпоинты, контракты, коды ошибок |
+| Документ                                                | О чём                                                |
+| ------------------------------------------------------- | ---------------------------------------------------- |
+| [PROJECT_PLAN.md](docs/PROJECT_PLAN.md)                 | Главный документ: цели, scope, майлстоуны, принципы  |
+| [BACKLOG.md](docs/BACKLOG.md)                           | Упорядоченный список задач M0–M1                     |
+| [DATA_MODEL.md](docs/DATA_MODEL.md)                     | Схема БД, модель денег, состояния чека, индексы      |
+| [PROCESSING_PIPELINE.md](docs/PROCESSING_PIPELINE.md)   | Распознавание: extractor, промпт, confidence, ретраи |
+| [API_SPEC.md](docs/API_SPEC.md)                         | Эндпоинты, контракты, коды ошибок                    |
 | [SECURITY_AND_PRIVACY.md](docs/SECURITY_AND_PRIVACY.md) | Аутентификация, доступ к данным, персональные данные |
-| [TESTING.md](docs/TESTING.md) | Стратегия тестирования и харнесс точности |
-| [OPERATIONS.md](docs/OPERATIONS.md) | Инфраструктура, окружения, деплой, наблюдаемость |
-| [adr/](docs/adr/) | Журнал архитектурных решений |
+| [TESTING.md](docs/TESTING.md)                           | Стратегия тестирования и харнесс точности            |
+| [OPERATIONS.md](docs/OPERATIONS.md)                     | Инфраструктура, окружения, деплой, наблюдаемость     |
+| [adr/](docs/adr/)                                       | Журнал архитектурных решений                         |
 
 Исходная версия плана до ревью сохранена в [docs/archive/PROJECT_PLAN.v1.md](docs/archive/PROJECT_PLAN.v1.md).
 

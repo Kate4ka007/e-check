@@ -8,11 +8,7 @@ import {
   parseModelList,
 } from './openrouter.client'
 import { buildUserPrompt, SYSTEM_PROMPT } from './prompts'
-import type {
-  ExtractionInput,
-  ExtractionResult,
-  ReceiptExtractor,
-} from './receipt-extractor'
+import type { ExtractionInput, ExtractionResult, ReceiptExtractor } from './receipt-extractor'
 
 function validateParsed(raw: unknown): {
   data: ExtractionResult['data']

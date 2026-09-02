@@ -38,7 +38,10 @@ export function parseMoneyToMinor(raw: string | null, currency: string | null): 
   if (raw === null) return null
 
   const exponent = currencyExponent(currency)
-  let s = raw.trim().replace(/\s/g, '').replace(/[€$£₽zł]/gi, '')
+  let s = raw
+    .trim()
+    .replace(/\s/g, '')
+    .replace(/[€$£₽zł]/gi, '')
   if (s === '') return null
 
   const negative = s.startsWith('-')

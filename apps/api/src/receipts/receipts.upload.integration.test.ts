@@ -76,7 +76,9 @@ describe('receipt upload integration', () => {
     expect(receipt).not.toBeNull()
     expect(receipt?.processingStatus).toBe('PENDING')
 
-    const jobs = await prisma.processingJob.findMany({ where: { receiptId: response.body.receiptId } })
+    const jobs = await prisma.processingJob.findMany({
+      where: { receiptId: response.body.receiptId },
+    })
     expect(jobs).toHaveLength(1)
   })
 
@@ -170,7 +172,9 @@ describe('receipt upload integration', () => {
     expect(response.body.processingStatus).toBe('SKIPPED')
 
     const prisma = getTestPrisma()
-    const jobs = await prisma.processingJob.findMany({ where: { receiptId: response.body.receiptId } })
+    const jobs = await prisma.processingJob.findMany({
+      where: { receiptId: response.body.receiptId },
+    })
     expect(jobs).toHaveLength(0)
   })
 

@@ -796,9 +796,7 @@ GET /api/v1/analytics/timeline
   "code": "RECEIPT_VALIDATION_ERROR",
   "message": "Receipt data is invalid",
   "details": {
-    "total": [
-      "Total must be greater than or equal to 0"
-    ]
+    "total": ["Total must be greater than or equal to 0"]
   },
   "requestId": "b4d0b8ef-7c71-4a4e-bc89-d1a0c4f7d38e"
 }
@@ -2313,26 +2311,26 @@ Receipt saved
 
 # 57. Recommended MVP Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Vue 3 + Nuxt 3 |
-| Language | TypeScript |
-| Frontend state | Pinia |
-| Styling | SCSS |
-| Backend | NestJS |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Queue | BullMQ |
-| Queue backend | Redis |
-| Object storage | S3-compatible storage |
-| API | REST |
-| Validation | class-validator / DTOs |
-| Frontend tests | Vitest + Vue Test Utils |
-| E2E | Playwright |
-| Backend tests | Jest + Supertest |
-| Local infrastructure | Docker Compose |
-| Monorepo | pnpm workspace |
-| Optional monorepo tooling | Turborepo |
+| Layer                     | Technology              |
+| ------------------------- | ----------------------- |
+| Frontend                  | Vue 3 + Nuxt 3          |
+| Language                  | TypeScript              |
+| Frontend state            | Pinia                   |
+| Styling                   | SCSS                    |
+| Backend                   | NestJS                  |
+| Database                  | PostgreSQL              |
+| ORM                       | Prisma                  |
+| Queue                     | BullMQ                  |
+| Queue backend             | Redis                   |
+| Object storage            | S3-compatible storage   |
+| API                       | REST                    |
+| Validation                | class-validator / DTOs  |
+| Frontend tests            | Vitest + Vue Test Utils |
+| E2E                       | Playwright              |
+| Backend tests             | Jest + Supertest        |
+| Local infrastructure      | Docker Compose          |
+| Monorepo                  | pnpm workspace          |
+| Optional monorepo tooling | Turborepo               |
 
 ---
 

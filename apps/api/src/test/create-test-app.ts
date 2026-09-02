@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { Test } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import helmet from 'helmet'

@@ -18,7 +18,6 @@ defineProps<{
 
 const { t } = useT()
 </script>
-
 <template>
   <div
     class="grid grid-cols-1 gap-y-1.5 sm:grid-cols-[9rem_1fr] sm:items-center sm:gap-x-3 sm:gap-y-1"

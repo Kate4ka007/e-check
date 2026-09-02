@@ -43,9 +43,7 @@ const merchantName = computed({
   get: () => draft.value?.merchant?.name ?? '',
   set: (name: string) => {
     if (!draft.value) return
-    draft.value.merchant = name.trim()
-      ? { id: draft.value.merchant?.id ?? 'new', name }
-      : null
+    draft.value.merchant = name.trim() ? { id: draft.value.merchant?.id ?? 'new', name } : null
   },
 })
 
@@ -125,8 +123,7 @@ const isDirty = computed(() => {
   draftRevision.value
   if (!draft.value || !loaded.value) return false
   return (
-    JSON.stringify(editableSnapshot(draft.value)) !==
-    JSON.stringify(editableSnapshot(loaded.value))
+    JSON.stringify(editableSnapshot(draft.value)) !== JSON.stringify(editableSnapshot(loaded.value))
   )
 })
 
@@ -283,9 +280,7 @@ const unknownCategories = computed(() => {
       <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin" />
     </div>
 
-    <div v-else-if="!draft" class="py-20 text-center text-(--ui-text-muted)">
-      Чек не найден
-    </div>
+    <div v-else-if="!draft" class="py-20 text-center text-(--ui-text-muted)">Чек не найден</div>
 
     <template v-else>
       <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -338,7 +333,9 @@ const unknownCategories = computed(() => {
         variant="soft"
         icon="i-lucide-triangle-alert"
         :title="t('receipt.confirm.warningsTitle')"
-        :description="t('receipt.confirm.sumMismatch', { amount: confirmWarnings[0]?.differenceMinor ?? 0 })"
+        :description="
+          t('receipt.confirm.sumMismatch', { amount: confirmWarnings[0]?.differenceMinor ?? 0 })
+        "
       />
 
       <div
@@ -356,7 +353,9 @@ const unknownCategories = computed(() => {
             :label="showImage ? t('receipt.image.hide') : t('receipt.image.show')"
             @click="showImage = !showImage"
           />
-          <div :class="showImage ? 'h-96 min-h-0 lg:h-full' : 'hidden lg:block lg:h-full lg:min-h-0'">
+          <div
+            :class="showImage ? 'h-96 min-h-0 lg:h-full' : 'hidden lg:block lg:h-full lg:min-h-0'"
+          >
             <ReceiptImagePane :src="draft.imageUrl" />
           </div>
         </aside>
@@ -382,14 +381,26 @@ const unknownCategories = computed(() => {
                 :source="draft.fieldSources.purchasedAt"
                 :confidence="draft.purchasedAt ? null : 'LOW'"
               >
-                <UInput v-model="purchasedAt" type="date" size="xs" :ui="inputUi" class="w-full tabular" />
+                <UInput
+                  v-model="purchasedAt"
+                  type="date"
+                  size="xs"
+                  :ui="inputUi"
+                  class="w-full tabular"
+                />
               </FieldRow>
 
               <FieldRow
                 :label="t('receipt.field.purchasedTime')"
                 :source="draft.fieldSources.purchasedTime"
               >
-                <UInput v-model="purchasedTime" type="time" size="xs" :ui="inputUi" class="w-full tabular" />
+                <UInput
+                  v-model="purchasedTime"
+                  type="time"
+                  size="xs"
+                  :ui="inputUi"
+                  class="w-full tabular"
+                />
               </FieldRow>
             </div>
 
@@ -448,7 +459,9 @@ const unknownCategories = computed(() => {
           >
             <div class="text-sm">
               <span class="text-(--ui-text-dimmed)">{{ t('receipt.field.total') }}</span>
-              <span class="tabular ml-2 text-base font-semibold text-(--ui-text-highlighted) lg:text-lg">
+              <span
+                class="tabular ml-2 text-base font-semibold text-(--ui-text-highlighted) lg:text-lg"
+              >
                 {{ formatMoney(draft.totalMinor, draft.currency) }}
               </span>
             </div>

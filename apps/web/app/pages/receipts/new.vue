@@ -167,10 +167,14 @@ onBeforeUnmount(() => {
       :color="processingStatus?.processingStatus === 'FAILED' ? 'warning' : 'info'"
       variant="soft"
       :icon="processing ? 'i-lucide-loader-circle' : 'i-lucide-scan-text'"
-      :title="processingStatus ? statusLabel(processingStatus.processingStatus) : t('processing.PROCESSING')"
+      :title="
+        processingStatus
+          ? statusLabel(processingStatus.processingStatus)
+          : t('processing.PROCESSING')
+      "
       :description="
         processing
-          ? stageLabel(processingStatus?.stage ?? 'EXTRACTING') ?? t('processing.PROCESSING')
+          ? (stageLabel(processingStatus?.stage ?? 'EXTRACTING') ?? t('processing.PROCESSING'))
           : processingStatus?.processingStatus === 'COMPLETED'
             ? t('upload.processingDone')
             : t('processing.failedHint')
@@ -210,12 +214,7 @@ onBeforeUnmount(() => {
 
         <div class="flex flex-wrap justify-center gap-2">
           <label class="inline-flex cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              class="sr-only"
-              @change="onFileSelected"
-            />
+            <input type="file" accept="image/*" class="sr-only" @change="onFileSelected" />
             <UButton as="span" color="primary" variant="soft" icon="i-lucide-upload">
               {{ t('upload.pickFile') }}
             </UButton>
@@ -260,7 +259,9 @@ onBeforeUnmount(() => {
           <div class="w-full border-t border-(--ui-border)" />
         </div>
         <div class="relative flex justify-center">
-          <span class="bg-(--ui-bg) px-2 text-xs text-(--ui-text-dimmed)">{{ t('upload.or') }}</span>
+          <span class="bg-(--ui-bg) px-2 text-xs text-(--ui-text-dimmed)">{{
+            t('upload.or')
+          }}</span>
         </div>
       </div>
 

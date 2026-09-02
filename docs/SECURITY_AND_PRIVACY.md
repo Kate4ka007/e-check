@@ -126,7 +126,7 @@ const scopedPrisma = prisma.$extends({
     $allModels: {
       async $allOperations({ model, operation, args, query }) {
         if (!USER_SCOPED_MODELS.has(model)) return query(args)
-        const userId = requestContext.getUserId()   // AsyncLocalStorage
+        const userId = requestContext.getUserId() // AsyncLocalStorage
         args.where = { ...args.where, userId, deletedAt: null }
         return query(args)
       },

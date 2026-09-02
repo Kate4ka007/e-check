@@ -24,7 +24,8 @@ const THRESHOLDS = { header: 0.9, items: 0.8 }
 
 const pct = (part: number, whole: number) => (whole === 0 ? 0 : (part / whole) * 100)
 const fmtPct = (v: number) => `${v.toFixed(0)}%`.padStart(4)
-const bar = (v: number, w = 18) => '█'.repeat(Math.round((v / 100) * w)) + '░'.repeat(w - Math.round((v / 100) * w))
+const bar = (v: number, w = 18) =>
+  '█'.repeat(Math.round((v / 100) * w)) + '░'.repeat(w - Math.round((v / 100) * w))
 
 interface RunGroup {
   key: string
@@ -95,7 +96,11 @@ function groupRuns(results: StoredResult[], expected: Map<string, ParsedReceipt>
   for (const [key, list] of buckets) {
     const [kind = '?', promptVersion = '?', tag = '?'] = key.split('|')
     const comparisons = list.map((r) =>
-      compareReceipt(r.fixtureId, expected.get(r.fixtureId)!, (r.data as ParsedReceipt | null) ?? null),
+      compareReceipt(
+        r.fixtureId,
+        expected.get(r.fixtureId)!,
+        (r.data as ParsedReceipt | null) ?? null,
+      ),
     )
     const parsedCount = list.filter((r) => r.ok).length
     const agg = aggregate(comparisons, parsedCount)
@@ -176,10 +181,13 @@ function printDetail(g: RunGroup) {
 
   console.log(`${'═'.repeat(78)}`)
   console.log(`  ${g.modelTag}   вариант: ${g.kind}   промпт: ${g.promptVersion}`)
-  if (g.actualModels.size > 0) console.log(`  Фактически отвечали: ${[...g.actualModels].join(', ')}`)
+  if (g.actualModels.size > 0)
+    console.log(`  Фактически отвечали: ${[...g.actualModels].join(', ')}`)
   console.log('═'.repeat(78))
 
-  console.log(`\n  Ответ прошёл схему   ${fmtPct(pct(g.parsedCount, agg.receiptCount))}  ${g.parsedCount}/${agg.receiptCount}`)
+  console.log(
+    `\n  Ответ прошёл схему   ${fmtPct(pct(g.parsedCount, agg.receiptCount))}  ${g.parsedCount}/${agg.receiptCount}`,
+  )
 
   console.log('\n  ── Шапка чека ──────────────────────────────────')
   const headerRows = [
@@ -192,10 +200,14 @@ function printDetail(g: RunGroup) {
     const v = pct(correct, agg.receiptCount)
     console.log(`  ${label.padEnd(18)} ${fmtPct(v)}  ${bar(v)}  ${correct}/${agg.receiptCount}`)
   }
-  console.log(`\n  ${'все три ключевых'.padEnd(18)} ${fmtPct(g.headerAccuracy)}  ${bar(g.headerAccuracy)}  ${agg.headerFullyCorrect}/${agg.receiptCount}`)
+  console.log(
+    `\n  ${'все три ключевых'.padEnd(18)} ${fmtPct(g.headerAccuracy)}  ${bar(g.headerAccuracy)}  ${agg.headerFullyCorrect}/${agg.receiptCount}`,
+  )
 
   console.log('\n  ── Позиции ─────────────────────────────────────')
-  console.log(`  в эталоне ${agg.expectedItems}, модель вернула ${agg.matchedItems + agg.hallucinatedItems}\n`)
+  console.log(
+    `  в эталоне ${agg.expectedItems}, модель вернула ${agg.matchedItems + agg.hallucinatedItems}\n`,
+  )
   const itemRows = [
     ['найдено', agg.matchedItems],
     ['название точно', agg.itemNameExact],
@@ -208,7 +220,9 @@ function printDetail(g: RunGroup) {
     const v = pct(correct, agg.expectedItems)
     console.log(`  ${label.padEnd(18)} ${fmtPct(v)}  ${bar(v)}  ${correct}/${agg.expectedItems}`)
   }
-  console.log(`\n  ${'название + цена'.padEnd(18)} ${fmtPct(g.itemAccuracy)}  ${bar(g.itemAccuracy)}  ${agg.itemFullyCorrect}/${agg.expectedItems}`)
+  console.log(
+    `\n  ${'название + цена'.padEnd(18)} ${fmtPct(g.itemAccuracy)}  ${bar(g.itemAccuracy)}  ${agg.itemFullyCorrect}/${agg.expectedItems}`,
+  )
 
   console.log(`\n  пропущено позиций    ${agg.missedItems}`)
   console.log(
@@ -252,10 +266,14 @@ function printErrors(g: RunGroup) {
     for (const m of c.matches) {
       const problems: string[] = []
       if (!m.nameExact) problems.push(`название "${m.actual.name}" вместо "${m.expected.name}"`)
-      if (!m.priceCorrect) problems.push(`цена ${m.actual.totalPrice} вместо ${m.expected.totalPrice}`)
-      if (!m.quantityCorrect) problems.push(`кол-во ${m.actual.quantity} вместо ${m.expected.quantity}`)
-      if (!m.lineTypeCorrect) problems.push(`тип ${m.actual.lineType} вместо ${m.expected.lineType}`)
-      if (!m.categoryCorrect) problems.push(`категория ${m.actual.categorySlug} вместо ${m.expected.categorySlug}`)
+      if (!m.priceCorrect)
+        problems.push(`цена ${m.actual.totalPrice} вместо ${m.expected.totalPrice}`)
+      if (!m.quantityCorrect)
+        problems.push(`кол-во ${m.actual.quantity} вместо ${m.expected.quantity}`)
+      if (!m.lineTypeCorrect)
+        problems.push(`тип ${m.actual.lineType} вместо ${m.expected.lineType}`)
+      if (!m.categoryCorrect)
+        problems.push(`категория ${m.actual.categorySlug} вместо ${m.expected.categorySlug}`)
       if (problems.length > 0) {
         clean = false
         console.log(`    ~ ${m.expected.name}: ${problems.join('; ')}`)
@@ -294,7 +312,8 @@ async function appendHistory(groups: RunGroup[]) {
   const date = new Date().toISOString().slice(0, 16).replace('T', ' ')
   const rows = groups
     .map((g) => {
-      const cost = g.costMicros === 0 ? '0' : `$${(g.costMicros / g.agg.receiptCount / 1_000_000).toFixed(4)}`
+      const cost =
+        g.costMicros === 0 ? '0' : `$${(g.costMicros / g.agg.receiptCount / 1_000_000).toFixed(4)}`
       return (
         `| ${date} | ${g.modelTag} | ${g.kind} | ${g.promptVersion} | ${g.agg.receiptCount} | ` +
         `${pct(g.parsedCount, g.agg.receiptCount).toFixed(0)}% | ${g.headerAccuracy.toFixed(0)}% | ` +
@@ -324,7 +343,9 @@ async function main() {
   const expected = await loadExpected()
 
   if (expected.size === 0) {
-    console.error('\nНет ни одной заполненной разметки. Запустите pnpm annotate и заполните файлы.\n')
+    console.error(
+      '\nНет ни одной заполненной разметки. Запустите pnpm annotate и заполните файлы.\n',
+    )
     process.exit(1)
   }
 
@@ -348,7 +369,9 @@ async function main() {
   const selected = pick ? groups.find((g) => g.modelTag === pick) : groups[0]
 
   if (!selected) {
-    console.error(`\nПрогон "${pick}" не найден. Доступны: ${groups.map((g) => g.modelTag).join(', ')}\n`)
+    console.error(
+      `\nПрогон "${pick}" не найден. Доступны: ${groups.map((g) => g.modelTag).join(', ')}\n`,
+    )
     process.exit(1)
   }
 

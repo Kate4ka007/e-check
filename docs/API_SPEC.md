@@ -174,13 +174,13 @@ Idempotency-Key: 9f2b1c40-...
 
 ### Ошибки
 
-| Статус | Код | Когда |
-|---|---|---|
-| `400` | `RECEIPT_FILE_MISSING` | нет поля `file` при `entryMode` не `MANUAL` |
-| `413` | `RECEIPT_FILE_TOO_LARGE` | больше лимита |
-| `415` | `RECEIPT_FILE_TYPE_UNSUPPORTED` | тип по сигнатуре не поддерживается |
-| `422` | `RECEIPT_IMAGE_INVALID` | повреждён, слишком мал, неверные пропорции |
-| `429` | `RATE_LIMIT_EXCEEDED` | превышена частота загрузок |
+| Статус | Код                             | Когда                                       |
+| ------ | ------------------------------- | ------------------------------------------- |
+| `400`  | `RECEIPT_FILE_MISSING`          | нет поля `file` при `entryMode` не `MANUAL` |
+| `413`  | `RECEIPT_FILE_TOO_LARGE`        | больше лимита                               |
+| `415`  | `RECEIPT_FILE_TYPE_UNSUPPORTED` | тип по сигнатуре не поддерживается          |
+| `422`  | `RECEIPT_IMAGE_INVALID`         | повреждён, слишком мал, неверные пропорции  |
+| `429`  | `RATE_LIMIT_EXCEEDED`           | превышена частота загрузок                  |
 
 Отдельно про `415`: тип определяется по сигнатуре файла, а не по заголовку
 `Content-Type` и не по расширению — оба задаются клиентом.
@@ -341,9 +341,7 @@ order                 asc | desc
 ```json
 {
   "status": "CONFIRMED",
-  "warnings": [
-    { "code": "ITEMS_SUM_MISMATCH", "differenceMinor": -50 }
-  ]
+  "warnings": [{ "code": "ITEMS_SUM_MISMATCH", "differenceMinor": -50 }]
 }
 ```
 
@@ -382,8 +380,14 @@ GET /api/v1/categories
 
 ```json
 [
-  { "id": "...", "slug": "groceries", "nameKey": "category.groceries",
-    "icon": "shopping-cart", "color": "#4ade80", "isSystem": true }
+  {
+    "id": "...",
+    "slug": "groceries",
+    "nameKey": "category.groceries",
+    "icon": "shopping-cart",
+    "color": "#4ade80",
+    "isSystem": true
+  }
 ]
 ```
 

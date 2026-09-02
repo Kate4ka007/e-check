@@ -78,7 +78,9 @@ onMounted(() => {
               {{ formatMoney(receipt.totalMinor, receipt.currency) }}
             </p>
             <UBadge
-              v-if="receipt.processingStatus !== 'COMPLETED' && receipt.processingStatus !== 'SKIPPED'"
+              v-if="
+                receipt.processingStatus !== 'COMPLETED' && receipt.processingStatus !== 'SKIPPED'
+              "
               :label="t(`processing.${receipt.processingStatus}`)"
               color="neutral"
               variant="soft"

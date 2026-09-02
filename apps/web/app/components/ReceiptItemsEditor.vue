@@ -18,7 +18,7 @@ import { inputUi, inputUiRight, selectUi } from '~/utils/formUi'
  */
 const items = defineModel<ReceiptItem[]>({ required: true })
 
-const props = defineProps<{ currency: string | null }>()
+defineProps<{ currency: string | null }>()
 
 const { t } = useT()
 
@@ -164,11 +164,7 @@ const isNegativeLine = (item: ReceiptItem) => item.totalPriceMinor < 0
             </div>
 
             <div class="min-w-0 lg:col-start-5 lg:row-start-1">
-              <MoneyInput
-                v-model="items[index]!.totalPriceMinor"
-                :currency="currency"
-                size="xs"
-              />
+              <MoneyInput v-model="items[index]!.totalPriceMinor" :currency="currency" size="xs" />
             </div>
           </div>
 
@@ -188,7 +184,9 @@ const isNegativeLine = (item: ReceiptItem) => item.totalPriceMinor < 0
           v-if="item.lineType !== 'ITEM' || isNegativeLine(item)"
           class="mt-2 flex items-center gap-2 lg:mt-1"
         >
-          <span class="shrink-0 text-xs text-(--ui-text-dimmed)">{{ t('receipt.items.type') }}</span>
+          <span class="shrink-0 text-xs text-(--ui-text-dimmed)">{{
+            t('receipt.items.type')
+          }}</span>
           <USelect
             v-model="items[index]!.lineType"
             :items="lineTypeOptions"
@@ -210,7 +208,10 @@ const isNegativeLine = (item: ReceiptItem) => item.totalPriceMinor < 0
         @click="addItem"
       />
 
-      <span v-if="items.length > 0" class="tabular shrink-0 text-xs text-(--ui-text-muted) lg:text-sm">
+      <span
+        v-if="items.length > 0"
+        class="tabular shrink-0 text-xs text-(--ui-text-muted) lg:text-sm"
+      >
         {{
           formatMoney(
             items.reduce((sum, item) => sum + item.totalPriceMinor, 0),

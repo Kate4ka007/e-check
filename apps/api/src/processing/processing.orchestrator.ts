@@ -2,7 +2,7 @@ import type { PrismaClient } from '../generated/prisma'
 import type { Env } from '../config/env.schema'
 import type { ReceiptExtractor } from '../extraction/receipt-extractor'
 import type { ReceiptProcessingJobData } from '../receipts/receipt-queue.service'
-import { StorageService } from '../storage/storage.service'
+import type { StorageService } from '../storage/storage.service'
 import { ReceiptNormalizer } from './receipt-normalizer'
 import { mergeReprocessResult } from './receipt-reprocess.merge'
 

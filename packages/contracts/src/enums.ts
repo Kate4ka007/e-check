@@ -37,7 +37,4 @@ export type ProcessingStage = z.infer<typeof ProcessingStageSchema>
  * Строки чека, которые не являются покупкой, участвуют в сверке сумм,
  * но не должны попадать в разбивку расходов по категориям.
  */
-export const NON_PURCHASE_LINE_TYPES: readonly LineType[] = [
-  'DISCOUNT',
-  'DEPOSIT_RETURN',
-] as const
+export const NON_PURCHASE_LINE_TYPES: readonly LineType[] = ['DISCOUNT', 'DEPOSIT_RETURN'] as const

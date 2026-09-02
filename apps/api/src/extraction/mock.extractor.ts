@@ -1,9 +1,5 @@
 import { ParsedReceiptSchema, type ParsedReceipt } from '@receipt-tracker/contracts'
-import type {
-  ExtractionInput,
-  ExtractionResult,
-  ReceiptExtractor,
-} from './receipt-extractor'
+import type { ExtractionInput, ExtractionResult, ReceiptExtractor } from './receipt-extractor'
 
 function buildMockReceipt(hints?: ExtractionInput['hints']): ParsedReceipt {
   const currency = hints?.expectedCurrency ?? 'BYN'

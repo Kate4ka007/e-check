@@ -58,28 +58,40 @@ export const ParsedItemSchema = z.object({
 
 const pad2 = (v: string) => v.padStart(2, '0')
 
-const DateString = z.preprocess((value) => {
-  if (typeof value !== 'string') return value
-  const text = value.trim()
-  if (text === '') return null
+const DateString = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') return value
+    const text = value.trim()
+    if (text === '') return null
 
-  const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/)
-  if (iso) return `${iso[1]}-${pad2(iso[2]!)}-${pad2(iso[3]!)}`
+    const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/)
+    if (iso) return `${iso[1]}-${pad2(iso[2]!)}-${pad2(iso[3]!)}`
 
-  const dmy = text.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/)
-  if (dmy && Number(dmy[1]) > 12) return `${dmy[3]}-${pad2(dmy[2]!)}-${pad2(dmy[1]!)}`
+    const dmy = text.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/)
+    if (dmy && Number(dmy[1]) > 12) return `${dmy[3]}-${pad2(dmy[2]!)}-${pad2(dmy[1]!)}`
 
-  return text
-}, z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable())
+    return text
+  },
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullable(),
+)
 
-const TimeString = z.preprocess((value) => {
-  if (typeof value !== 'string') return value
-  const text = value.trim()
-  if (text === '') return null
+const TimeString = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') return value
+    const text = value.trim()
+    if (text === '') return null
 
-  const match = text.match(/^(\d{1,2}):(\d{2})(?::\d{2})?/)
-  return match ? `${pad2(match[1]!)}:${match[2]}` : text
-}, z.string().regex(/^\d{2}:\d{2}$/).nullable())
+    const match = text.match(/^(\d{1,2}):(\d{2})(?::\d{2})?/)
+    return match ? `${pad2(match[1]!)}:${match[2]}` : text
+  },
+  z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .nullable(),
+)
 
 const CurrencyString = z.preprocess((value) => {
   if (typeof value !== 'string') return value

@@ -24,14 +24,23 @@ export class IdempotencyService {
     }
   }
 
-  async assertNotReused(key: string, userId: string, endpoint: string, requestHash: string): Promise<void> {
+  async assertNotReused(
+    key: string,
+    userId: string,
+    endpoint: string,
+    requestHash: string,
+  ): Promise<void> {
     const record = await this.prisma.idempotencyKey.findUnique({ where: { key } })
     if (!record || record.expiresAt <= new Date()) return
     if (record.userId !== userId || record.endpoint !== endpoint) {
       throw new ApiError('IDEMPOTENCY_KEY_REUSED', 'Idempotency key reused', 409)
     }
     if (record.requestHash !== requestHash) {
-      throw new ApiError('IDEMPOTENCY_KEY_REUSED', 'Idempotency key reused with different payload', 409)
+      throw new ApiError(
+        'IDEMPOTENCY_KEY_REUSED',
+        'Idempotency key reused with different payload',
+        409,
+      )
     }
   }
 

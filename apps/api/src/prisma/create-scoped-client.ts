@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '../generated/prisma'
+import type { Prisma, PrismaClient } from '../generated/prisma'
 import { getUserId } from '../common/request-context'
 
 const USER_SCOPED_MODELS = new Set<Prisma.ModelName>(['Merchant', 'Receipt'])

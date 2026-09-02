@@ -1,15 +1,13 @@
 import { createHash } from 'node:crypto'
 
 const SIGNATURES: Array<{ mime: string; check: (bytes: Buffer) => boolean }> = [
-  { mime: 'image/jpeg', check: (b) => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  {
+    mime: 'image/jpeg',
+    check: (b) => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  },
   {
     mime: 'image/png',
-    check: (b) =>
-      b.length >= 8 &&
-      b[0] === 0x89 &&
-      b[1] === 0x50 &&
-      b[2] === 0x4e &&
-      b[3] === 0x47,
+    check: (b) => b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
   },
   {
     mime: 'image/webp',
@@ -32,8 +30,7 @@ const SIGNATURES: Array<{ mime: string; check: (bytes: Buffer) => boolean }> = [
   {
     mime: 'image/tiff',
     check: (b) =>
-      b.length >= 4 &&
-      ((b[0] === 0x49 && b[1] === 0x49) || (b[0] === 0x4d && b[1] === 0x4d)),
+      b.length >= 4 && ((b[0] === 0x49 && b[1] === 0x49) || (b[0] === 0x4d && b[1] === 0x4d)),
   },
 ]
 

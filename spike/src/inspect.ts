@@ -25,7 +25,9 @@ async function main() {
     return i !== -1 ? args[i + 1] : undefined
   }
   const rawFor = get('--raw')
-  const only = get('--only')?.split(',').map((s) => s.trim())
+  const only = get('--only')
+    ?.split(',')
+    .map((s) => s.trim())
 
   let results = await listResults()
   if (only) results = results.filter((r) => only.includes(r.fixtureId))
@@ -49,12 +51,22 @@ async function main() {
     const first = items[0]
 
     out(`\n${r.fixtureId}  [${r.modelTag}]  промпт ${r.promptVersion}  ${r.ok ? 'ok' : 'ОТКАЗ'}`)
-    out(`  ответила: ${r.model}   режим: ${r.jsonMode}   попыток: ${r.attempts}   ${(r.durationMs / 1000).toFixed(1)}с`)
+    out(
+      `  ответила: ${r.model}   режим: ${r.jsonMode}   попыток: ${r.attempts}   ${(r.durationMs / 1000).toFixed(1)}с`,
+    )
 
     if (r.error) out(`  причина: ${r.error.slice(0, 300)}`)
 
-    out(`  поля шапки: ${Object.keys(raw).filter((k) => k !== 'items').join(', ') || '—'}`)
-    out(`  purchasedAt=${shape(raw.purchasedAt)}  purchasedTime=${shape(raw.purchasedTime)}  currency=${shape(raw.currency)}`)
+    out(
+      `  поля шапки: ${
+        Object.keys(raw)
+          .filter((k) => k !== 'items')
+          .join(', ') || '—'
+      }`,
+    )
+    out(
+      `  purchasedAt=${shape(raw.purchasedAt)}  purchasedTime=${shape(raw.purchasedTime)}  currency=${shape(raw.currency)}`,
+    )
     out(`  total=${shape(raw.total)}  позиций: ${items.length}`)
 
     if (first) {

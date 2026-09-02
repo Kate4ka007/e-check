@@ -97,15 +97,15 @@
 
 ```text
 [x] pnpm workspace, apps/web, packages/contracts
-[ ] TypeScript, ESLint, Prettier, единый конфиг на монорепозиторий
+[x] TypeScript, ESLint, Prettier, единый конфиг на монорепозиторий
 [ ] Husky и lint-staged
-[~] docker compose: postgres, postgres-test, redis, minio
+[x] docker compose: postgres, postgres-test, redis, minio
 [x] NestJS: приложение с /health
 [x] Nuxt в режиме SPA: экран проверки чека на фикстурах
-[ ] Выбрать площадки хостинга из бесплатных тарифов
-[ ] Задеплоить оба приложения, /health отвечает из интернета
+[x] Выбрать площадки хостинга из бесплатных тарифов
+[x] Задеплоить оба приложения, /health отвечает из интернета
 [ ] GitHub Actions: линтер, типы, сборка
-[ ] Записать выбранные площадки в OPERATIONS.md
+[x] Записать выбранные площадки в OPERATIONS.md
 ```
 
 ### Решение по итогам

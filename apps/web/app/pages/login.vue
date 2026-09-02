@@ -28,7 +28,9 @@ async function submit() {
   <div class="flex min-h-screen items-center justify-center bg-(--ui-bg) px-4">
     <UCard class="w-full max-w-md">
       <template #header>
-        <h1 class="text-lg font-semibold text-(--ui-text-highlighted)">{{ t('auth.login.title') }}</h1>
+        <h1 class="text-lg font-semibold text-(--ui-text-highlighted)">
+          {{ t('auth.login.title') }}
+        </h1>
         <p class="mt-1 text-sm text-(--ui-text-muted)">{{ t('auth.login.subtitle') }}</p>
       </template>
 
@@ -47,12 +49,7 @@ async function submit() {
           />
         </UFormField>
 
-        <UAlert
-          v-if="auth.errorMessage"
-          color="error"
-          variant="soft"
-          :title="auth.errorMessage"
-        />
+        <UAlert v-if="auth.errorMessage" color="error" variant="soft" :title="auth.errorMessage" />
 
         <UButton type="submit" block :loading="pending" :label="t('auth.login.action')" />
       </form>

@@ -35,14 +35,11 @@ export function mergeReprocessResult(
   const preserveItems = fieldSources.items === 'USER'
 
   return {
-    merchantId:
-      fieldSources.merchantName === 'USER' ? existing.merchantId : normalized.merchantId,
+    merchantId: fieldSources.merchantName === 'USER' ? existing.merchantId : normalized.merchantId,
     purchasedAt:
       fieldSources.purchasedAt === 'USER' ? existing.purchasedAt : normalized.purchasedAt,
     purchasedTime:
-      fieldSources.purchasedTime === 'USER'
-        ? existing.purchasedTime
-        : normalized.purchasedTime,
+      fieldSources.purchasedTime === 'USER' ? existing.purchasedTime : normalized.purchasedTime,
     currency: fieldSources.currency === 'USER' ? existing.currency : normalized.currency,
     subtotalMinor:
       fieldSources.subtotalMinor === 'USER' ? existing.subtotalMinor : normalized.subtotalMinor,

@@ -67,7 +67,10 @@ export function parseMoneyToMinor(
   if (digits === '' && fractionPart === '') return null
 
   const exponent = currencyExponent(currency)
-  const normalizedFraction = fractionPart.replace(/[^\d]/g, '').slice(0, exponent).padEnd(exponent, '0')
+  const normalizedFraction = fractionPart
+    .replace(/[^\d]/g, '')
+    .slice(0, exponent)
+    .padEnd(exponent, '0')
 
   const minor = Number(digits || '0') * 10 ** exponent + Number(normalizedFraction || '0')
   if (!Number.isFinite(minor)) return null

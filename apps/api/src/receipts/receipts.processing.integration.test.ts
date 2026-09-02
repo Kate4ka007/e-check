@@ -86,9 +86,11 @@ describe('receipt processing integration', () => {
       receiptId,
       userId: (await getTestPrisma().receipt.findUniqueOrThrow({ where: { id: receiptId } }))
         .userId,
-      requestId: (await getTestPrisma().processingJob.findFirstOrThrow({
-        where: { receiptId },
-      })).requestId,
+      requestId: (
+        await getTestPrisma().processingJob.findFirstOrThrow({
+          where: { receiptId },
+        })
+      ).requestId,
     })
 
     const completed = await agent.get(`/api/v1/receipts/${receiptId}/processing`).expect(200)

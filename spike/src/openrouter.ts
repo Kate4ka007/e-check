@@ -89,7 +89,9 @@ function classify(error: unknown): { retryable: boolean; nextModel: boolean; rea
         nextModel: true,
         reason:
           `не хватило токенов на ответ` +
-          (error.reasoningChars > 0 ? `, ${error.reasoningChars} символов ушло на рассуждение` : ''),
+          (error.reasoningChars > 0
+            ? `, ${error.reasoningChars} символов ушло на рассуждение`
+            : ''),
       }
     }
     // Иначе модель могла споткнуться о строгую схему: пробуем режим попроще
@@ -194,9 +196,7 @@ export async function callWithFallback(options: CallOptions): Promise<CallResult
           throw new EmptyResponseError(choice?.finish_reason ?? 'unknown', reasoning.length)
         }
 
-        const usage = completion.usage as
-          | (OpenAI.CompletionUsage & { cost?: number })
-          | undefined
+        const usage = completion.usage as (OpenAI.CompletionUsage & { cost?: number }) | undefined
 
         return {
           content,

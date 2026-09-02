@@ -2,9 +2,7 @@
 const { t } = useT()
 const auth = useAuthStore()
 
-const links = [
-  { to: '/', label: t('nav.receipts'), icon: 'i-lucide-receipt' },
-]
+const links = [{ to: '/', label: t('nav.receipts'), icon: 'i-lucide-receipt' }]
 </script>
 
 <template>
@@ -14,7 +12,10 @@ const links = [
         class="flex w-full max-w-full items-center justify-between gap-4 px-4 py-3 lg:mx-auto lg:max-w-7xl"
       >
         <div class="flex min-w-0 items-center gap-1">
-          <NuxtLink to="/" class="flex items-center gap-2 font-semibold text-(--ui-text-highlighted)">
+          <NuxtLink
+            to="/"
+            class="flex items-center gap-2 font-semibold text-(--ui-text-highlighted)"
+          >
             <UIcon name="i-lucide-receipt-text" class="size-5 shrink-0" />
             {{ t('app.title') }}
           </NuxtLink>

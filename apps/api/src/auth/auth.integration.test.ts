@@ -78,10 +78,7 @@ describe('auth integration', () => {
     await registerUser(app, { email, password })
 
     const agent = request.agent(app.getHttpServer())
-    const response = await agent
-      .post('/api/v1/auth/login')
-      .send({ email, password })
-      .expect(200)
+    const response = await agent.post('/api/v1/auth/login').send({ email, password }).expect(200)
 
     expect(response.body.email).toBe(email)
 

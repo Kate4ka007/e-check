@@ -1,19 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiError, type UserProfile } from '@receipt-tracker/contracts'
 import type { Request, Response } from 'express'
-import {
-  LoginRequestSchema,
-  RegisterRequestSchema,
-} from '@receipt-tracker/contracts'
+import { LoginRequestSchema, RegisterRequestSchema } from '@receipt-tracker/contracts'
 import { AuthGuard } from './auth.guard'
 import { AuthService } from './auth.service'
 import { CookieService, REFRESH_COOKIE } from './cookie.service'

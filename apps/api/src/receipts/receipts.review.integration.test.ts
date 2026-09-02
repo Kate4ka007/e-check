@@ -30,10 +30,7 @@ async function registerAgent(app: INestApplication) {
   return agent
 }
 
-async function uploadAndProcess(
-  agent: Awaited<ReturnType<typeof registerAgent>>,
-  image: Buffer,
-) {
+async function uploadAndProcess(agent: Awaited<ReturnType<typeof registerAgent>>, image: Buffer) {
   const upload = await agent
     .post('/api/v1/receipts/upload')
     .set('Idempotency-Key', randomUUID())

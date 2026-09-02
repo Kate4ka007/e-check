@@ -82,11 +82,7 @@ export class ReceiptsService {
       requestHash,
     )
 
-    const cached = await this.idempotency.read(
-      input.idempotencyKey,
-      input.userId,
-      UPLOAD_ENDPOINT,
-    )
+    const cached = await this.idempotency.read(input.idempotencyKey, input.userId, UPLOAD_ENDPOINT)
     if (cached) return cached
 
     const processed = await this.images.process(input.file)
@@ -199,12 +195,7 @@ export class ReceiptsService {
   ): Promise<{ statusCode: number; body: ReceiptUploadResponse }> {
     const requestHash = hashRequest(null, 'MANUAL')
 
-    await this.idempotency.assertNotReused(
-      idempotencyKey,
-      userId,
-      UPLOAD_ENDPOINT,
-      requestHash,
-    )
+    await this.idempotency.assertNotReused(idempotencyKey, userId, UPLOAD_ENDPOINT, requestHash)
 
     const cached = await this.idempotency.read(idempotencyKey, userId, UPLOAD_ENDPOINT)
     if (cached) return cached
@@ -236,14 +227,7 @@ export class ReceiptsService {
       duplicate: false,
     }
 
-    await this.idempotency.save(
-      idempotencyKey,
-      userId,
-      UPLOAD_ENDPOINT,
-      requestHash,
-      202,
-      body,
-    )
+    await this.idempotency.save(idempotencyKey, userId, UPLOAD_ENDPOINT, requestHash, 202, body)
 
     return { statusCode: 202, body }
   }
@@ -262,9 +246,7 @@ export class ReceiptsService {
     const items: ReceiptListItem[] = await Promise.all(
       receipts.map(async (receipt) => ({
         id: receipt.id,
-        purchasedAt: receipt.purchasedAt
-          ? receipt.purchasedAt.toISOString().slice(0, 10)
-          : null,
+        purchasedAt: receipt.purchasedAt ? receipt.purchasedAt.toISOString().slice(0, 10) : null,
         currency: receipt.currency,
         totalMinor: receipt.totalMinor,
         status: receipt.status,
@@ -329,9 +311,7 @@ export class ReceiptsService {
       }
 
       if (patch.purchasedAt !== undefined) {
-        data.purchasedAt = patch.purchasedAt
-          ? new Date(`${patch.purchasedAt}T12:00:00Z`)
-          : null
+        data.purchasedAt = patch.purchasedAt ? new Date(`${patch.purchasedAt}T12:00:00Z`) : null
       }
       if (patch.purchasedTime !== undefined) data.purchasedTime = patch.purchasedTime
       if (patch.currency !== undefined && patch.currency) data.currency = patch.currency
@@ -464,9 +444,7 @@ export class ReceiptsService {
 
     const categories = await ReceiptCategoryResolver.create(this.prisma)
     const [imageUrl, thumbnailUrl] = await Promise.all([
-      receipt.imageKey
-        ? this.storage.getSignedUrl(receipt.imageKey)
-        : Promise.resolve(null),
+      receipt.imageKey ? this.storage.getSignedUrl(receipt.imageKey) : Promise.resolve(null),
       receipt.thumbnailKey
         ? this.storage.getSignedUrl(receipt.thumbnailKey)
         : Promise.resolve(null),
@@ -510,10 +488,7 @@ export class ReceiptsService {
     return created.id
   }
 
-  async getProcessingStatus(
-    userId: string,
-    receiptId: string,
-  ): Promise<ReceiptProcessingResponse> {
+  async getProcessingStatus(userId: string, receiptId: string): Promise<ReceiptProcessingResponse> {
     const receipt = await this.prisma.receipt.findFirst({
       where: { id: receiptId, userId, deletedAt: null },
     })

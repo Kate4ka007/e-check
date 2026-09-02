@@ -65,9 +65,7 @@ export function buildUserPrompt(hints?: {
   }
 
   if (hints?.knownMerchants?.length) {
-    parts.push(
-      `Магазины, где этот пользователь уже покупал: ${hints.knownMerchants.join(', ')}.`,
-    )
+    parts.push(`Магазины, где этот пользователь уже покупал: ${hints.knownMerchants.join(', ')}.`)
   }
 
   return parts.join('\n\n')

@@ -19,14 +19,16 @@ interface ModelInfo {
 }
 
 const isFree = (m: ModelInfo) =>
-  m.id.endsWith(':free') || (Number(m.pricing?.prompt ?? 1) === 0 && Number(m.pricing?.completion ?? 1) === 0)
+  m.id.endsWith(':free') ||
+  (Number(m.pricing?.prompt ?? 1) === 0 && Number(m.pricing?.completion ?? 1) === 0)
 
 /**
  * Модели, которые формально принимают изображения, но для чтения чеков
  * непригодны: генерация звука и картинок, классификаторы безопасности,
  * эмбеддинги, распознавание речи.
  */
-const UNSUITABLE = /lyria|veo|imagen|dall-?e|whisper|tts|音|safety|guard|moderat|embed|rerank|clip-preview/i
+const UNSUITABLE =
+  /lyria|veo|imagen|dall-?e|whisper|tts|音|safety|guard|moderat|embed|rerank|clip-preview/i
 
 const isUsable = (m: ModelInfo) => !UNSUITABLE.test(m.id) && !UNSUITABLE.test(m.name)
 
@@ -64,9 +66,7 @@ async function main() {
     return
   }
 
-  console.log(
-    `\nБесплатные ${wantText ? 'текстовые' : 'vision'} модели (${matching.length}):\n`,
-  )
+  console.log(`\nБесплатные ${wantText ? 'текстовые' : 'vision'} модели (${matching.length}):\n`)
 
   for (const m of matching) {
     const structured = m.supported_parameters?.includes('structured_outputs') ? 'schema' : '—'
@@ -79,7 +79,9 @@ async function main() {
 
   console.log('\nСтрока для .env — модели с поддержкой схемы идут первыми,')
   console.log('остальные подхватятся, если первые вернут 404 или 429:\n')
-  console.log(`${wantText ? 'TEXT_MODELS' : 'VISION_MODELS'}=${recommended.map((m) => m.id).join(',')}\n`)
+  console.log(
+    `${wantText ? 'TEXT_MODELS' : 'VISION_MODELS'}=${recommended.map((m) => m.id).join(',')}\n`,
+  )
 }
 
 main().catch((error) => {

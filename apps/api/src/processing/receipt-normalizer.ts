@@ -69,7 +69,8 @@ export class ReceiptNormalizer {
     const items = input.parsed.items.map((item, index) => {
       const totalPriceMinor = parseMoneyToMinor(item.totalPrice, currency) ?? 0
       const unitPriceMinor = parseMoneyToMinor(item.unitPrice, currency)
-      const categoryId = categoryBySlug.get(item.categorySlug) ?? categoryBySlug.get('other') ?? null
+      const categoryId =
+        categoryBySlug.get(item.categorySlug) ?? categoryBySlug.get('other') ?? null
 
       return {
         id: randomUUID(),

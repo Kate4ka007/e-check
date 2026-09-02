@@ -38,10 +38,7 @@ function itemConfidence(item: ParsedItem, currency: string | null): 'HIGH' | 'ME
   return Math.abs(expected - total) <= 1 ? 'HIGH' : 'LOW'
 }
 
-function receiptConfidence(
-  receipt: ParsedReceipt,
-  sumMatches: boolean,
-): 'HIGH' | 'MEDIUM' | 'LOW' {
+function receiptConfidence(receipt: ParsedReceipt, sumMatches: boolean): 'HIGH' | 'MEDIUM' | 'LOW' {
   if (!sumMatches) return 'LOW'
   const complete = receipt.merchantName && receipt.purchasedAt && receipt.currency
   return complete ? 'HIGH' : 'MEDIUM'
@@ -117,8 +114,7 @@ async function main() {
   const args = process.argv.slice(2)
   const modelIndex = args.indexOf('--model')
   const preferredTag = modelTag(config.VISION_MODELS)
-  const wantedModel =
-    modelIndex !== -1 ? args[modelIndex + 1] : preferredTag || undefined
+  const wantedModel = modelIndex !== -1 ? args[modelIndex + 1] : preferredTag || undefined
 
   if (!wantedModel) {
     out('\nЗадайте VISION_MODELS в spike/.env или передайте --model\n')
@@ -159,7 +155,9 @@ async function main() {
     await writeFile(join(TARGET_DIR, imageName), image.buffer)
 
     receipts.push(toDetail(result, `/.local/${imageName}`))
-    out(`  ${fixtureId}  ${result.modelTag}, позиций ${(result.data as ParsedReceipt).items.length}`)
+    out(
+      `  ${fixtureId}  ${result.modelTag}, позиций ${(result.data as ParsedReceipt).items.length}`,
+    )
   }
 
   await writeFile(join(TARGET_DIR, 'receipts.json'), JSON.stringify(receipts, null, 2), 'utf8')

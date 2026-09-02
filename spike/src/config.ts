@@ -8,7 +8,9 @@ const csv = (value: string) =>
     .filter(Boolean)
 
 const ConfigSchema = z.object({
-  OPENROUTER_API_KEY: z.string().min(1, 'Не задан OPENROUTER_API_KEY — скопируйте .env.example в .env'),
+  OPENROUTER_API_KEY: z
+    .string()
+    .min(1, 'Не задан OPENROUTER_API_KEY — скопируйте .env.example в .env'),
   VISION_MODELS: z.string().default('').transform(csv),
   TEXT_MODELS: z.string().default('').transform(csv),
   DATA_COLLECTION: z.enum(['allow', 'deny']).default('allow'),

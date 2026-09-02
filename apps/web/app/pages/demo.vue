@@ -24,9 +24,7 @@ const draft = ref<ReceiptDetail>(structuredClone(original))
 const merchantName = computed({
   get: () => draft.value.merchant?.name ?? '',
   set: (name: string) => {
-    draft.value.merchant = name.trim()
-      ? { id: draft.value.merchant?.id ?? 'new', name }
-      : null
+    draft.value.merchant = name.trim() ? { id: draft.value.merchant?.id ?? 'new', name } : null
   },
 })
 
@@ -46,9 +44,7 @@ const purchasedTime = nullableField('purchasedTime')
 const currency = nullableField('currency')
 const note = nullableField('note')
 
-const liveValidation = computed(() =>
-  validateReceiptSum(draft.value.items, draft.value.totalMinor),
-)
+const liveValidation = computed(() => validateReceiptSum(draft.value.items, draft.value.totalMinor))
 
 function itemSnapshot(item: ReceiptItem) {
   return {
@@ -81,8 +77,7 @@ watch(draft, () => draftRevision.value++, { deep: true })
 const isDirty = computed(() => {
   draftRevision.value
   return (
-    JSON.stringify(editableSnapshot(draft.value)) !==
-    JSON.stringify(editableSnapshot(original))
+    JSON.stringify(editableSnapshot(draft.value)) !== JSON.stringify(editableSnapshot(original))
   )
 })
 
@@ -237,7 +232,9 @@ function discard() {
             :label="showImage ? t('receipt.image.hide') : t('receipt.image.show')"
             @click="showImage = !showImage"
           />
-          <div :class="showImage ? 'h-96 min-h-0 lg:h-full' : 'hidden lg:block lg:h-full lg:min-h-0'">
+          <div
+            :class="showImage ? 'h-96 min-h-0 lg:h-full' : 'hidden lg:block lg:h-full lg:min-h-0'"
+          >
             <ReceiptImagePane :src="draft.imageUrl" />
           </div>
         </aside>
@@ -262,22 +259,31 @@ function discard() {
                 :label="t('receipt.field.purchasedAt')"
                 :source="draft.fieldSources.purchasedAt"
               >
-                <UInput v-model="purchasedAt" type="date" size="xs" :ui="inputUi" class="w-full tabular" />
+                <UInput
+                  v-model="purchasedAt"
+                  type="date"
+                  size="xs"
+                  :ui="inputUi"
+                  class="w-full tabular"
+                />
               </FieldRow>
 
               <FieldRow
                 :label="t('receipt.field.purchasedTime')"
                 :source="draft.fieldSources.purchasedTime"
               >
-                <UInput v-model="purchasedTime" type="time" size="xs" :ui="inputUi" class="w-full tabular" />
+                <UInput
+                  v-model="purchasedTime"
+                  type="time"
+                  size="xs"
+                  :ui="inputUi"
+                  class="w-full tabular"
+                />
               </FieldRow>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-2">
-              <FieldRow
-                :label="t('receipt.field.currency')"
-                :source="draft.fieldSources.currency"
-              >
+              <FieldRow :label="t('receipt.field.currency')" :source="draft.fieldSources.currency">
                 <USelect
                   v-model="currency"
                   :items="currencyOptions"
@@ -323,7 +329,9 @@ function discard() {
           >
             <div class="text-sm">
               <span class="text-(--ui-text-dimmed)">{{ t('receipt.field.total') }}</span>
-              <span class="tabular ml-2 text-base font-semibold text-(--ui-text-highlighted) lg:text-lg">
+              <span
+                class="tabular ml-2 text-base font-semibold text-(--ui-text-highlighted) lg:text-lg"
+              >
                 {{ formatMoney(draft.totalMinor, draft.currency) }}
               </span>
             </div>
@@ -361,11 +369,6 @@ function discard() {
       </div>
     </main>
 
-    <AppTour
-      v-model="tourOpen"
-      :steps="tourSteps"
-      @finish="markTourSeen"
-      @close="markTourSeen"
-    />
+    <AppTour v-model="tourOpen" :steps="tourSteps" @finish="markTourSeen" @close="markTourSeen" />
   </div>
 </template>

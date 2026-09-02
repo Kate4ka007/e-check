@@ -31,9 +31,9 @@ services:
       - key: REFRESH_TTL
         value: 30d
       - key: COOKIE_DOMAIN
-        value: ""
+        value: ''
       - key: COOKIE_SECURE
-        value: "true"
+        value: 'true'
       - key: S3_ENDPOINT
         sync: false
       - key: S3_REGION
@@ -45,7 +45,7 @@ services:
       - key: S3_SECRET_KEY
         sync: false
       - key: S3_FORCE_PATH_STYLE
-        value: "false"
+        value: 'false'
       - key: EXTRACTOR_KIND
         value: vision
       - key: EXTRACTOR_BASE_URL
@@ -55,16 +55,16 @@ services:
       - key: EXTRACTOR_MODELS
         value: dots-studio/dots-3-note-preview:free
       - key: EXTRACTOR_TIMEOUT_MS
-        value: "120000"
+        value: '120000'
       - key: EXTRACTOR_MAX_ATTEMPTS
-        value: "3"
+        value: '3'
       - key: EXTRACTOR_DATA_COLLECTION
         value: allow
       - key: UPLOAD_MAX_BYTES
-        value: "15728640"
+        value: '15728640'
       - key: UPLOAD_RATE_PER_HOUR
-        value: "30"
+        value: '30'
       - key: REGISTRATION_ENABLED
-        value: "true"
+        value: 'true'
       - key: LOG_LEVEL
         value: info

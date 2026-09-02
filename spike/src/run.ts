@@ -38,8 +38,13 @@ function parseArgs() {
     kind,
     force: args.includes('--force'),
     yes: args.includes('--yes'),
-    only: get('--only')?.split(',').map((s) => s.trim()),
-    models: modelsArg?.split(',').map((s) => s.trim()).filter(Boolean),
+    only: get('--only')
+      ?.split(',')
+      .map((s) => s.trim()),
+    models: modelsArg
+      ?.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
   }
 }
 

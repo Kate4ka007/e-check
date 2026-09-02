@@ -34,7 +34,7 @@ export class ImageProcessorService {
       throw new ApiError('RECEIPT_IMAGE_INVALID', 'Image is too small', 422)
     }
 
-    const mimeType = this.assertSupported(buffer)
+    this.assertSupported(buffer)
     const sourceSha256 = hashBuffer(buffer)
 
     try {

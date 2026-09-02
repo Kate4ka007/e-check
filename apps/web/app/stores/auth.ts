@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       user.value = await api.me()
       status.value = 'authenticated'
-    } catch (error) {
+    } catch {
       user.value = null
       status.value = 'guest'
     }

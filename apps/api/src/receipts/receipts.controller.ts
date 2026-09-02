@@ -56,8 +56,7 @@ export class ReceiptsController {
       throw new ApiError('VALIDATION_FAILED', 'Idempotency-Key header is required', 422)
     }
 
-    const entryMode =
-      typeof req.body?.entryMode === 'string' ? req.body.entryMode : undefined
+    const entryMode = typeof req.body?.entryMode === 'string' ? req.body.entryMode : undefined
 
     const result = await this.receipts.upload({
       userId: req.userId!,

@@ -3,8 +3,7 @@ export function applyIntegrationEnv(): void {
   process.env.PORT = '3099'
   process.env.APP_URL = 'http://localhost:3000'
   process.env.DATABASE_URL =
-    process.env.TEST_DATABASE_URL ??
-    'postgresql://receipt:receipt@localhost:5433/receipt_test'
+    process.env.TEST_DATABASE_URL ?? 'postgresql://receipt:receipt@localhost:5433/receipt_test'
   process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/1'
   process.env.JWT_ACCESS_SECRET = 'integration-test-jwt-secret'
   process.env.JWT_ACCESS_TTL = '15m'
