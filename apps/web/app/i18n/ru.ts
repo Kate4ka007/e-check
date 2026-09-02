@@ -175,12 +175,15 @@ export const ru = {
   'tour.back': 'Назад',
   'tour.finish': 'Понятно',
 
-  'auth.login.title': 'Вход',
+  'auth.login.title': 'Добро пожаловать',
   'auth.login.subtitle': 'Войдите, чтобы продолжить работу с чеками.',
   'auth.login.action': 'Войти',
+  'auth.login.or': 'или',
   'auth.login.noAccount': 'Нет аккаунта?',
   'auth.login.registerLink': 'Зарегистрироваться',
   'auth.login.demoLink': 'Посмотреть демо без регистрации',
+  'auth.login.showPassword': 'Показать пароль',
+  'auth.login.hidePassword': 'Скрыть пароль',
 
   'demo.seo.title': 'Демо: проверка чека — Чеки',
   'demo.seo.description':
