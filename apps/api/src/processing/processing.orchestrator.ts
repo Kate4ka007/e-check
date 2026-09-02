@@ -34,6 +34,17 @@ export class ProcessingOrchestrator {
     })
     if (!job) return
 
+    if (!receipt.imageKey || !receipt.mimeType) {
+      await this.failJob({
+        jobId: job.id,
+        receiptId: receipt.id,
+        errorCode: 'RECEIPT_IMAGE_INVALID',
+        errorMessage: 'Receipt has no image to process',
+        finishedAt: new Date(),
+      })
+      return
+    }
+
     const startedAt = new Date()
 
     await this.prisma.$transaction([
