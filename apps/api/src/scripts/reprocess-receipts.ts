@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto'
 import { Queue } from 'bullmq'
 import { loadEnv } from '../config/env.schema'
 import { PrismaClient } from '../generated/prisma'
+import { RECEIPT_QUEUE_DEFAULT_JOB_OPTIONS } from '../receipts/receipt-queue.config'
 import { RECEIPT_PROCESSING_QUEUE } from '../receipts/receipt-queue.service'
 
 const BAD_MODELS = new Set(['mock'])
@@ -23,6 +24,7 @@ async function main() {
   const prisma = new PrismaClient()
   const queue = new Queue(RECEIPT_PROCESSING_QUEUE, {
     connection: { url: env.REDIS_URL },
+    defaultJobOptions: RECEIPT_QUEUE_DEFAULT_JOB_OPTIONS,
   })
 
   const receipts = await prisma.receipt.findMany({

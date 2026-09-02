@@ -3,6 +3,7 @@ import type { Env } from '../config/env.schema'
 import type { ReceiptExtractor } from '../extraction/receipt-extractor'
 import type { ReceiptProcessingJobData } from '../receipts/receipt-queue.service'
 import type { StorageService } from '../storage/storage.service'
+import { isRetryableProcessingError } from './processing-retry'
 import { ReceiptNormalizer } from './receipt-normalizer'
 import { mergeReprocessResult } from './receipt-reprocess.merge'
 
@@ -198,7 +199,7 @@ export class ProcessingOrchestrator {
     const job = await this.prisma.processingJob.findUnique({ where: { id: input.jobId } })
     const attempts = job?.attempt ?? 1
     const maxAttempts = job?.maxAttempts ?? this.env.EXTRACTOR_MAX_ATTEMPTS
-    const retry = attempts < maxAttempts
+    const retry = isRetryableProcessingError(input.errorCode) && attempts < maxAttempts
 
     await this.prisma.$transaction([
       this.prisma.processingJob.update({

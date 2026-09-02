@@ -1,6 +1,7 @@
 import { Worker } from 'bullmq'
 import { ensureSystemCategories } from './categories/ensure-system-categories'
 import { loadEnv } from './config/env.schema'
+import { RECEIPT_WORKER_OPTIONS } from './receipts/receipt-queue.config'
 import {
   RECEIPT_PROCESSING_QUEUE,
   type ReceiptProcessingJobData,
@@ -23,6 +24,7 @@ async function main() {
     {
       connection: { url: env.REDIS_URL },
       concurrency: 2,
+      ...RECEIPT_WORKER_OPTIONS,
     },
   )
 

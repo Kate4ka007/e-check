@@ -1,27 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { createHash, randomBytes } from 'node:crypto'
-import Redis from 'ioredis'
-import { ENV } from '../config/config.module'
-import type { Env } from '../config/env.schema'
+import { RedisService } from '../redis/redis.service'
+
+const LOGIN_WINDOW_SECONDS = 15 * 60
+const LOGIN_MAX_ATTEMPTS = 5
 
 @Injectable()
 export class RateLimitService {
-  private readonly redis: Redis
-
-  constructor(@Inject(ENV) private readonly env: Env) {
-    this.redis = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true })
-  }
+  constructor(private readonly redis: RedisService) {}
 
   async assertLoginAllowed(email: string, ip: string): Promise<void> {
-    await this.redis.connect().catch(() => undefined)
-
     const keys = [`login:email:${email}`, `login:ip:${ip}`]
     for (const key of keys) {
-      const attempts = await this.redis.incr(key)
-      if (attempts === 1) {
-        await this.redis.expire(key, 15 * 60)
-      }
-      if (attempts > 5) {
+      const attempts = await this.redis.incrementWithExpire(key, LOGIN_WINDOW_SECONDS)
+      if (attempts > LOGIN_MAX_ATTEMPTS) {
         throw new Error('RATE_LIMITED')
       }
     }

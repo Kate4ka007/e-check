@@ -8,11 +8,13 @@ import { RequestIdMiddleware } from './common/request-id.middleware'
 import { AuthModule } from './auth/auth.module'
 import { HealthModule } from './health/health.module'
 import { PrismaModule } from './prisma/prisma.module'
+import { RedisModule } from './redis/redis.module'
 import { ReceiptsModule } from './receipts/receipts.module'
 
 @Module({
   imports: [
     AppConfigModule,
+    RedisModule,
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL ?? 'info',

@@ -2,6 +2,7 @@ import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { Queue } from 'bullmq'
 import { ENV } from '../config/config.module'
 import type { Env } from '../config/env.schema'
+import { RECEIPT_QUEUE_DEFAULT_JOB_OPTIONS } from './receipt-queue.config'
 
 export const RECEIPT_PROCESSING_QUEUE = 'receipt-processing'
 
@@ -18,10 +19,7 @@ export class ReceiptQueueService implements OnModuleDestroy {
   constructor(@Inject(ENV) private readonly env: Env) {
     this.queue = new Queue<ReceiptProcessingJobData>(RECEIPT_PROCESSING_QUEUE, {
       connection: { url: env.REDIS_URL },
-      defaultJobOptions: {
-        removeOnComplete: 100,
-        removeOnFail: 200,
-      },
+      defaultJobOptions: RECEIPT_QUEUE_DEFAULT_JOB_OPTIONS,
     })
   }
 
