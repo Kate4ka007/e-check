@@ -170,7 +170,7 @@ Render Postgres на free живёт 30 дней — используй Neon, н
 ```text
 Браузер
   → Vercel (Nuxt: HTML для `/` и `/demo`, SPA за сессией)
-      → /api/* проксируется на Render (vercel.json)
+      → /api/v1/* проксируется на Render (vercel.json)
   → Render (API + worker в Docker)
       → Neon, Upstash, R2/Supabase
 ```
@@ -185,7 +185,7 @@ Cookies: фронт и API на разных доменах (`*.vercel.app` и `
 | --------------------------------------- | ------------------------------ |
 | `Dockerfile`                            | образ API + worker             |
 | `render.yaml`                           | Blueprint для Render           |
-| `apps/web/vercel.json`                  | прокси `/api/*` → Render       |
+| `apps/web/vercel.json`                  | прокси `/api/v1/*` → Render    |
 | `apps/api/scripts/start-production.cjs` | миграции + запуск API и worker |
 
 Локально production-режим API+worker:
