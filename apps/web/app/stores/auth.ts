@@ -63,7 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
     await api.logout().catch(() => undefined)
     user.value = null
     status.value = 'guest'
-    await navigateTo('/login')
+    await navigateTo('/')
   }
 
   function resolveErrorKey(error: unknown): string {

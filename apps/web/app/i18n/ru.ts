@@ -9,6 +9,42 @@
 export const ru = {
   'app.title': 'Чеки',
 
+  'landing.eyebrow': 'Учёт расходов по чекам',
+  'landing.titleLine1': 'Сфотографируйте чек —',
+  'landing.titleLine2': 'мы разберём',
+  'landing.titleHighlight': 'покупку',
+  'landing.subtitleLine1': 'Загрузите фото или введите данные вручную,',
+  'landing.subtitleLine2': 'проверьте распознанные поля и сохраните расходы в одном месте.',
+  'landing.hasAccount': 'Уже есть аккаунт?',
+  'landing.action.demo': 'Посмотреть демо',
+  'landing.action.login': 'Войти',
+  'landing.action.register': 'Регистрация',
+  'landing.action.registerFree': 'Создать аккаунт бесплатно',
+  'landing.action.back': 'На главную',
+  'landing.features.title': 'После первого чека',
+  'landing.feature.scan.title': 'Распознавание',
+  'landing.feature.scan.description':
+    'Модель достаёт магазин, дату, позиции и итог. Неуверенные поля помечаются — их видно до сохранения.',
+  'landing.feature.review.title': 'Сверка сумм',
+  'landing.feature.review.description':
+    'Сумма позиций сверяется с итогом чека. Любую строку можно поправить, пока расход не попал в учёт.',
+  'landing.feature.track.title': 'История',
+  'landing.feature.track.description':
+    'Подтверждённые чеки в списке: поиск и фильтры по дате, категории и магазину.',
+  'landing.feature.analytics.title': 'Сводка',
+  'landing.feature.analytics.description':
+    'Сколько потратили за период и как это выглядит на фоне предыдущего.',
+  'landing.feature.charts.title': 'Графики',
+  'landing.feature.charts.description':
+    'Динамика расходов и разбивка по категориям и магазинам. Суммы сходятся с чеками.',
+  'landing.feature.categories.title': 'Категории',
+  'landing.feature.categories.description':
+    'Позиции раскладываются по категориям: продукты, кафе, транспорт и остальные.',
+  'landing.cta.title': 'Готовы начать?',
+  'landing.cta.description':
+    'Создайте аккаунт и сохраните первый чек. Аналитика появится сама — по подтверждённым покупкам.',
+  'landing.footer': 'Чеки — личный учёт расходов',
+
   'nav.dashboard': 'Сводка',
   'nav.receipts': 'Чеки',
   'nav.analytics': 'Аналитика',

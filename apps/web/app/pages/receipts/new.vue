@@ -307,7 +307,7 @@ onBeforeUnmount(() => {
       >
         {{ t('upload.openReceipt') }}
       </UButton>
-      <UButton to="/" color="neutral" variant="soft">
+      <UButton to="/receipts" color="neutral" variant="soft">
         {{ t('upload.backToList') }}
       </UButton>
     </div>

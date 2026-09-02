@@ -24,7 +24,7 @@ async function submit() {
       timezone,
       baseCurrency: baseCurrency.value,
     })
-    await navigateTo('/')
+    await navigateTo('/receipts')
   } catch {
     // Ошибка уже в auth.errorMessage
   } finally {
@@ -79,6 +79,11 @@ async function submit() {
 
       <template #footer>
         <p class="text-sm text-(--ui-text-muted)">
+          <NuxtLink to="/" class="text-(--ui-primary) hover:underline">
+            {{ t('landing.action.back') }}
+          </NuxtLink>
+        </p>
+        <p class="mt-2 text-sm text-(--ui-text-muted)">
           {{ t('auth.register.hasAccount') }}
           <NuxtLink to="/login" class="text-(--ui-primary) hover:underline">
             {{ t('auth.register.loginLink') }}

@@ -13,7 +13,7 @@ test('register, upload receipt, review, confirm, see in list', async ({ page }) 
   await page.getByLabel('Пароль').fill(password)
   await page.getByRole('button', { name: 'Создать аккаунт' }).click()
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/receipts')
   await expect(page.getByRole('heading', { name: 'Чеки' })).toBeVisible()
 
   await page.goto('/receipts/new')
@@ -35,7 +35,7 @@ test('register, upload receipt, review, confirm, see in list', async ({ page }) 
   await page.getByRole('button', { name: 'Подтвердить' }).click()
   await expect(page.getByText('Подтверждён')).toBeVisible()
 
-  await page.goto('/')
+  await page.goto('/receipts')
   await expect(page.getByRole('link', { name: /Mock Store/ })).toBeVisible()
   await expect(page.getByRole('link', { name: /Mock Store/ })).toContainText(/5[,.]70/)
 })

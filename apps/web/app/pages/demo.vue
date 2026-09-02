@@ -177,11 +177,15 @@ function discard() {
         data-tour="welcome"
       >
         <div class="flex min-w-0 items-center gap-2">
-          <UIcon name="i-lucide-receipt-text" class="size-5 shrink-0 text-(--ui-primary)" />
-          <div class="min-w-0">
-            <p class="truncate font-semibold text-(--ui-text-highlighted)">{{ t('app.title') }}</p>
-            <p class="truncate text-xs text-(--ui-text-dimmed)">{{ t('demo.banner') }}</p>
-          </div>
+          <NuxtLink to="/" class="flex min-w-0 items-center gap-2">
+            <UIcon name="i-lucide-receipt-text" class="size-5 shrink-0 text-(--ui-primary)" />
+            <div class="min-w-0">
+              <p class="truncate font-semibold text-(--ui-text-highlighted)">
+                {{ t('app.title') }}
+              </p>
+              <p class="truncate text-xs text-(--ui-text-dimmed)">{{ t('demo.banner') }}</p>
+            </div>
+          </NuxtLink>
         </div>
 
         <div class="flex shrink-0 items-center gap-2">

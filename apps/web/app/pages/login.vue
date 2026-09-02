@@ -15,7 +15,7 @@ async function submit() {
   pending.value = true
   try {
     await auth.login(email.value, password.value)
-    await navigateTo(typeof route.query.redirect === 'string' ? route.query.redirect : '/')
+    await navigateTo(typeof route.query.redirect === 'string' ? route.query.redirect : '/receipts')
   } catch {
     // Ошибка уже в auth.errorMessage
   } finally {
@@ -56,6 +56,11 @@ async function submit() {
 
       <template #footer>
         <p class="text-sm text-(--ui-text-muted)">
+          <NuxtLink to="/" class="text-(--ui-primary) hover:underline">
+            {{ t('landing.action.back') }}
+          </NuxtLink>
+        </p>
+        <p class="mt-2 text-sm text-(--ui-text-muted)">
           {{ t('auth.login.noAccount') }}
           <NuxtLink to="/register" class="text-(--ui-primary) hover:underline">
             {{ t('auth.login.registerLink') }}
