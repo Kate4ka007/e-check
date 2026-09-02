@@ -341,9 +341,12 @@ const unknownCategories = computed(() => {
         :description="t('receipt.confirm.sumMismatch', { amount: confirmWarnings[0]?.differenceMinor ?? 0 })"
       />
 
-      <div class="grid gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+      <div
+        class="grid gap-5"
+        :class="draft.imageUrl ? 'lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]' : ''"
+      >
         <!-- Изображение: на узком экране сворачивается, чтобы не оттеснять поля -->
-        <aside class="lg:sticky lg:top-4 lg:h-[calc(100vh-6rem)]">
+        <aside v-if="draft.imageUrl" class="lg:sticky lg:top-4 lg:h-[calc(100vh-6rem)]">
           <UButton
             class="mb-2 lg:hidden"
             color="neutral"

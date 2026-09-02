@@ -173,4 +173,29 @@ describe('receipt upload integration', () => {
     const jobs = await prisma.processingJob.findMany({ where: { receiptId: response.body.receiptId } })
     expect(jobs).toHaveLength(0)
   })
+
+  it('creates a manual entry receipt without a file', async () => {
+    const agent = await registerAgent(app)
+
+    const response = await agent
+      .post('/api/v1/receipts/upload')
+      .set('Idempotency-Key', randomUUID())
+      .field('entryMode', 'MANUAL')
+      .expect(202)
+
+    expect(response.body.processingStatus).toBe('SKIPPED')
+    expect(response.body.duplicate).toBe(false)
+
+    const prisma = getTestPrisma()
+    const receipt = await prisma.receipt.findUnique({ where: { id: response.body.receiptId } })
+    expect(receipt?.entryMode).toBe('MANUAL')
+    expect(receipt?.processingStatus).toBe('SKIPPED')
+    expect(receipt?.imageKey).toBeNull()
+    expect(receipt?.fileSha256).toBeNull()
+
+    const detail = await agent.get(`/api/v1/receipts/${response.body.receiptId}`).expect(200)
+    expect(detail.body.imageUrl).toBeNull()
+    expect(detail.body.entryMode).toBe('MANUAL')
+    expect(detail.body.items).toEqual([])
+  })
 })

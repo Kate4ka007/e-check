@@ -23,7 +23,9 @@ async function main() {
   }
 
   for (const receipt of receipts) {
-    await storage.deleteObject(receipt.imageKey).catch(() => undefined)
+    if (receipt.imageKey) {
+      await storage.deleteObject(receipt.imageKey).catch(() => undefined)
+    }
     if (receipt.thumbnailKey) {
       await storage.deleteObject(receipt.thumbnailKey).catch(() => undefined)
     }

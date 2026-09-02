@@ -38,6 +38,15 @@ onMounted(() => {
       <UButton class="mt-4" to="/receipts/new" color="primary" icon="i-lucide-camera">
         {{ t('upload.action') }}
       </UButton>
+      <UButton
+        class="mt-2"
+        to="/receipts/new"
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-pencil-line"
+      >
+        {{ t('upload.createWithoutPhoto') }}
+      </UButton>
     </div>
 
     <ul v-else class="space-y-2">

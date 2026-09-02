@@ -155,11 +155,11 @@ model Receipt {
   status           ReceiptStatus    @default(DRAFT)
   processingStatus ProcessingStatus @default(PENDING)
 
-  imageKey         String
+  imageKey         String?
   thumbnailKey     String?
-  fileSha256       String           @db.Char(64)
-  fileSizeBytes    Int
-  mimeType         String
+  fileSha256       String?          @db.Char(64)
+  fileSizeBytes    Int?
+  mimeType         String?
 
   confidence       ConfidenceLevel?
   fieldSources     Json             @default("{}")

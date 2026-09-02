@@ -11,6 +11,7 @@ const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
 const manualEntry = ref(false)
 const uploading = ref(false)
+const creatingManual = ref(false)
 const processing = ref(false)
 const processingStatus = ref<ReceiptProcessingResponse | null>(null)
 const errorMessage = ref<string | null>(null)
@@ -90,6 +91,26 @@ async function retryProcessing() {
     errorMessage.value = code ? t(messageKeyForError(code)) : t('upload.error.internal')
   } finally {
     retrying.value = false
+  }
+}
+
+async function createWithoutPhoto() {
+  if (creatingManual.value || uploading.value || processing.value) return
+
+  creatingManual.value = true
+  errorMessage.value = null
+
+  try {
+    const payload = new FormData()
+    payload.append('entryMode', 'MANUAL')
+    const result = await api.uploadReceipt(payload, crypto.randomUUID())
+    await navigateTo(`/receipts/${result.receiptId}`)
+  } catch (error) {
+    const apiError = error as ApiClientError
+    const code = apiError.body?.code
+    errorMessage.value = code ? t(messageKeyForError(code)) : t('upload.error.internal')
+  } finally {
+    creatingManual.value = false
   }
 }
 
@@ -220,7 +241,7 @@ onBeforeUnmount(() => {
       <UButton
         block
         color="primary"
-        :disabled="!file || uploading || processing"
+        :disabled="!file || uploading || processing || creatingManual"
         :loading="uploading || processing"
         icon="i-lucide-send"
         @click="upload"
@@ -232,6 +253,27 @@ onBeforeUnmount(() => {
               ? t('processing.PROCESSING')
               : t('upload.action')
         }}
+      </UButton>
+
+      <div class="relative py-2">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-(--ui-border)" />
+        </div>
+        <div class="relative flex justify-center">
+          <span class="bg-(--ui-bg) px-2 text-xs text-(--ui-text-dimmed)">{{ t('upload.or') }}</span>
+        </div>
+      </div>
+
+      <UButton
+        block
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-pencil-line"
+        :loading="creatingManual"
+        :disabled="uploading || processing || creatingManual"
+        @click="createWithoutPhoto"
+      >
+        {{ t('upload.createWithoutPhoto') }}
       </UButton>
     </div>
 

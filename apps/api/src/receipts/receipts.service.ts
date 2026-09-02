@@ -62,7 +62,10 @@ export class ReceiptsService {
     const entryMode = this.parseEntryMode(input.entryModeRaw)
 
     if (!input.file?.length) {
-      throw new ApiError('RECEIPT_FILE_MISSING', 'File is required', 400)
+      if (entryMode !== 'MANUAL') {
+        throw new ApiError('RECEIPT_FILE_MISSING', 'File is required', 400)
+      }
+      return this.createManualWithoutFile(input.userId, input.idempotencyKey)
     }
 
     if (input.file.byteLength > this.env.UPLOAD_MAX_BYTES) {
@@ -181,6 +184,61 @@ export class ReceiptsService {
     await this.idempotency.save(
       input.idempotencyKey,
       input.userId,
+      UPLOAD_ENDPOINT,
+      requestHash,
+      202,
+      body,
+    )
+
+    return { statusCode: 202, body }
+  }
+
+  private async createManualWithoutFile(
+    userId: string,
+    idempotencyKey: string,
+  ): Promise<{ statusCode: number; body: ReceiptUploadResponse }> {
+    const requestHash = hashRequest(null, 'MANUAL')
+
+    await this.idempotency.assertNotReused(
+      idempotencyKey,
+      userId,
+      UPLOAD_ENDPOINT,
+      requestHash,
+    )
+
+    const cached = await this.idempotency.read(idempotencyKey, userId, UPLOAD_ENDPOINT)
+    if (cached) return cached
+
+    await this.uploadRateLimit.assertAllowed(userId)
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
+    })
+    if (!user) {
+      throw new ApiError('AUTH_UNAUTHENTICATED', 'Authentication required', 401)
+    }
+
+    const receiptId = randomUUID()
+
+    await this.prisma.receipt.create({
+      data: {
+        id: receiptId,
+        userId,
+        currency: user.baseCurrency,
+        entryMode: 'MANUAL',
+        processingStatus: 'SKIPPED',
+      },
+    })
+
+    const body: ReceiptUploadResponse = {
+      receiptId,
+      processingStatus: 'SKIPPED',
+      duplicate: false,
+    }
+
+    await this.idempotency.save(
+      idempotencyKey,
+      userId,
       UPLOAD_ENDPOINT,
       requestHash,
       202,
@@ -406,7 +464,9 @@ export class ReceiptsService {
 
     const categories = await ReceiptCategoryResolver.create(this.prisma)
     const [imageUrl, thumbnailUrl] = await Promise.all([
-      this.storage.getSignedUrl(receipt.imageKey),
+      receipt.imageKey
+        ? this.storage.getSignedUrl(receipt.imageKey)
+        : Promise.resolve(null),
       receipt.thumbnailKey
         ? this.storage.getSignedUrl(receipt.thumbnailKey)
         : Promise.resolve(null),

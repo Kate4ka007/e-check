@@ -53,6 +53,7 @@ export function hashBuffer(buffer: Buffer): string {
   return createHash('sha256').update(buffer).digest('hex')
 }
 
-export function hashRequest(fileSha256: string, entryMode: string): string {
-  return createHash('sha256').update(`${fileSha256}:${entryMode}`).digest('hex')
+export function hashRequest(fileSha256: string | null, entryMode: string): string {
+  const filePart = fileSha256 ?? 'NO_FILE'
+  return createHash('sha256').update(`${filePart}:${entryMode}`).digest('hex')
 }
