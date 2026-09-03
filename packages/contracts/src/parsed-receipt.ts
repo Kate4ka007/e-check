@@ -9,6 +9,74 @@ const MoneyString = z
   .string()
   .regex(/^-?[\d\s]{1,12}([.,]\d{1,3})?$/, 'Ожидается число как напечатано на чеке')
 
+function stripTrailingZeros(money: string): string {
+  return money.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '')
+}
+
+function formatMoneyAmount(value: number): string {
+  const negative = value < 0
+  const abs = Math.abs(value)
+  const trimmed = abs.toFixed(3).replace(/\.?0+$/, '')
+  return `${negative ? '-' : ''}${trimmed || '0'}`
+}
+
+/** Модель часто возвращает число, "3.4900", "3.49 BYN" или "15.69 x 0.596". */
+export function normalizeMoney(value: unknown): unknown {
+  if (value === null || value === undefined) return null
+
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return null
+    return formatMoneyAmount(value)
+  }
+
+  if (typeof value !== 'string') return value
+
+  const text = value.trim()
+  if (text === '' || text.toLowerCase() === 'null') return null
+
+  const negative = /^[-−]/.test(text)
+  const match = text.match(/[\d\s]{1,15}(?:[.,]\d+)?/)
+  if (!match) return text
+
+  const raw = match[0].replace(/\s/g, '')
+  const lastComma = raw.lastIndexOf(',')
+  const lastDot = raw.lastIndexOf('.')
+  const sepAt = Math.max(lastComma, lastDot)
+
+  let result: string
+  if (sepAt === -1) {
+    result = raw.replace(/[^\d]/g, '')
+  } else {
+    const intPart = raw.slice(0, sepAt).replace(/[^\d]/g, '')
+    const fracPart = raw
+      .slice(sepAt + 1)
+      .replace(/[^\d]/g, '')
+      .slice(0, 3)
+    result = fracPart ? `${intPart}.${fracPart}` : intPart
+  }
+
+  if (!result) return text
+
+  const normalized = negative ? `-${result.replace(/^-/, '')}` : result
+  return stripTrailingZeros(normalized)
+}
+
+const NullableMoneyString = z.preprocess((value) => {
+  if (typeof value === 'string') {
+    const text = value.trim()
+    if (text === '' || text.toLowerCase() === 'null') return null
+  }
+  return normalizeMoney(value)
+}, MoneyString.nullable())
+
+const RequiredMoneyString = z.preprocess((value) => {
+  const normalized = normalizeMoney(value)
+  if (normalized === null && value !== null && value !== undefined) {
+    return typeof value === 'string' ? value.trim() : value
+  }
+  return normalized ?? value
+}, MoneyString)
+
 const nullish = <T extends z.ZodTypeAny>(inner: T) =>
   z.preprocess((value) => {
     if (typeof value !== 'string') return value
@@ -51,8 +119,8 @@ export const ParsedItemSchema = z.object({
   lineType: LineTypeSchema,
   quantity: z.preprocess(normalizeQuantity, QuantityString.nullable()),
   unit: ItemUnitSchema,
-  unitPrice: nullish(MoneyString.nullable()),
-  totalPrice: MoneyString,
+  unitPrice: nullish(NullableMoneyString),
+  totalPrice: RequiredMoneyString,
   categorySlug: CategorySlugSchema,
 })
 
@@ -105,10 +173,10 @@ export const ParsedReceiptSchema = z.object({
   purchasedTime: TimeString,
   currency: CurrencyString,
   items: z.array(ParsedItemSchema).max(200),
-  subtotal: MoneyString.nullable(),
-  taxTotal: MoneyString.nullable(),
-  discountTotal: MoneyString.nullable(),
-  total: MoneyString.nullable(),
+  subtotal: NullableMoneyString,
+  taxTotal: NullableMoneyString,
+  discountTotal: NullableMoneyString,
+  total: NullableMoneyString,
 })
 
 export type ParsedItem = z.infer<typeof ParsedItemSchema>

@@ -21,6 +21,5 @@ export function applyIntegrationEnv(): void {
   process.env.EXTRACTOR_API_KEY = ''
   process.env.EXTRACTOR_MODELS = ''
   process.env.REGISTRATION_ENABLED = 'true'
-  process.env.SENTRY_DSN = ''
   process.env.LOG_LEVEL = 'silent'
 }

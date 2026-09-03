@@ -63,7 +63,6 @@ export const EnvSchema = z.object({
     .string()
     .default('true')
     .transform((value) => value === 'true'),
-  SENTRY_DSN: z.string().default(''),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 })
 

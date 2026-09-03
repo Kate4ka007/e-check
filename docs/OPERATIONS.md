@@ -116,7 +116,6 @@ UPLOAD_MAX_BYTES=15728640
 UPLOAD_RATE_PER_HOUR=30
 
 REGISTRATION_ENABLED=true                # false в production
-SENTRY_DSN=
 LOG_LEVEL=debug
 ```
 
@@ -124,7 +123,6 @@ LOG_LEVEL=debug
 
 ```bash
 NUXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
-NUXT_PUBLIC_SENTRY_DSN=
 NUXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -349,11 +347,8 @@ NUXT_PUBLIC_SITE_URL=https://scan-cheki.vercel.app
 
 ### Ошибки
 
-Sentry на бэкенде и фронтенде, с общим `requestId` — по одной ошибке
-в интерфейсе находится соответствующая цепочка на сервере.
-
-Фильтрация тел запросов и cookie обязательна: иначе в Sentry уедут
-данные чеков и токены.
+Структурные логи с `requestId` на бэкенде. По `requestId` из ответа API
+находится соответствующая цепочка в логах.
 
 ### Метрики
 

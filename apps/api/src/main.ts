@@ -4,27 +4,11 @@ import { Logger } from 'nestjs-pino'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import helmet from 'helmet'
-import * as Sentry from '@sentry/node'
 import { AppModule } from './app.module'
 import { loadEnv } from './config/env.schema'
 
 async function bootstrap() {
   const env = loadEnv()
-
-  if (env.SENTRY_DSN) {
-    Sentry.init({
-      dsn: env.SENTRY_DSN,
-      environment: env.NODE_ENV,
-      beforeSend(event) {
-        if (event.request) {
-          delete event.request.cookies
-          delete event.request.headers?.cookie
-          delete event.request.data
-        }
-        return event
-      },
-    })
-  }
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true })
   app.useLogger(app.get(Logger))
